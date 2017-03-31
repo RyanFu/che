@@ -1,0 +1,17 @@
+[ 2017-02-22T09:44:57+08:00 ] 127.0.0.1 /index.php?g=admin&m=public&a=dologin
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.001000s ]
+INFO: Run Behavior\CheckLangBehavior [ RunTime:0.001000s ]
+INFO: Run Common\Behavior\UrldecodeGetBehavior [ RunTime:0.000000s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.002000s ]
+INFO: [ admin_begin ] --START--
+INFO: Run Common\Behavior\AdminDefaultLangBehavior [ RunTime:0.001000s ]
+INFO: [ admin_begin ] --END-- [ RunTime:0.001000s ]
+SQL: SHOW COLUMNS FROM `hh_users` [ RunTime:0.0070s ]
+SQL: SELECT * FROM `hh_users` WHERE `user_login` = 'admin' LIMIT 1   [ RunTime:0.0000s ]
+SQL: SHOW COLUMNS FROM `hh_role_user` [ RunTime:0.0050s ]
+SQL: SELECT `role_id` FROM hh_role_user a INNER JOIN hh_role as b on a.role_id =b.id  WHERE `user_id` = '1' AND `status` = 1  [ RunTime:0.0020s ]
+SQL: UPDATE `hh_users` SET `user_login`='admin',`user_pass`='###2421a0ec6fa872fedf2d69a9e0865371',`user_nicename`='admin',`user_email`='573833606@qq.com',`user_url`='',`avatar`=NULL,`sex`='0',`birthday`='2000-01-01',`signature`=NULL,`last_login_ip`='127.0.0.1',`last_login_time`='2017-02-22 09:44:57',`create_time`='2017-02-19 11:19:27',`user_activation_key`='',`user_status`='1',`score`='0',`user_type`='1',`coin`='0',`mobile`='',`parent_id`=NULL WHERE `id` = '1' [ RunTime:0.0010s ]
+SQL: SHOW COLUMNS FROM `hh_admin_log` [ RunTime:0.0070s ]
+SQL: INSERT INTO `hh_admin_log` (`users_id`,`details`,`type`,`time`) VALUES ('1','用户admin悄悄的进入了后台','admin','1487727897') [ RunTime:0.0020s ]
+

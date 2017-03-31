@@ -1,0 +1,328 @@
+<admintpl file="header" />
+<style type="text/css">
+	.pic-list li {
+		margin-bottom: 5px;
+	}
+</style>
+<script type="text/html" id="photos-item-wrapper">
+	<li id="savedimage{id}">
+		<input id="photo-{id}" type="hidden" name="photos_url[]" value="{filepath}">
+		<input id="photo-{id}-name" type="text" name="photos_alt[]" value="{name}" style="width: 160px;" title="图片名称">
+		<img id="photo-{id}-preview" src="{url}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+		<a href="javascript:upload_one_image('图片上传','#photo-{id}');">替换</a>
+		<a href="javascript:(function(){$('#savedimage{id}').remove();})();">移除</a>
+	</li>
+</script>
+<script type="text/javascript">
+    var num = 0;
+    var model=[];
+</script>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+	<ul class="nav nav-tabs">
+		<li><a href="{:U('commodity/commoditylist')}">实物列表</a></li>
+		<li><a href="{:U('commodity/commodityadd',array('term'=>empty($term['term_id'])?'':$term['term_id']))}" target="_self">添加实物</a></li>
+		<li class="active"><a href="#">编辑实物</a></li>
+	</ul>
+	<form action="{:U('commodity/commodityeditdo')}" method="post" class="form-horizontal js-ajax-forms" enctype="multipart/form-data">
+		<div class="row-fluid">
+			<div class="span12">
+				<table class="table table-bordered">
+					<input type="hidden" value="{$info.id}" name="id" />
+					<tr>
+						<th>分类</th>
+						<td>
+							<select name="classify">
+								<option value="0">请选择分类</option>
+								{$select_categorys}
+							</select>
+							<span class="form-required">*</span>
+						</td>
+					</tr>
+					<tr>
+						<th>标题</th>
+						<td>
+							<input type="text" style="width:400px;" name="name" id="name" required value="{$info.name}" placeholder="请输入标题" />
+							<span class="form-required">*</span>
+						</td>
+					</tr>
+					<tr>
+						<th>摘要</th>
+						<td>
+							<textarea name="desc" id="description" style="width: 98%; height: 50px;" placeholder="请填写摘要">{$info.desc}</textarea>
+						</td>
+					</tr>
+
+					<tr>
+						<th>缩略图</th>
+						<td>
+							<div style="text-align: left;">
+								<input type="hidden" name="thumb" id="thumb" value="{$info.thumb}">
+								<a href="javascript:upload_one_image('图片上传','#thumb');">
+									<if condition="$info.thumb neq ''">
+										<img src="/data/upload/{$info.thumb}" id="thumb-preview" width="60" style="cursor: hand" />
+										<else />
+									<img src="__TMPL__Public/assets/images/default-thumbnail.png" id="thumb-preview" width="60" style="cursor: hand" />
+											</if>
+								</a>
+								<input type="button" class="btn btn-small" onclick="$('#thumb-preview').attr('src','__TMPL__Public/assets/images/default-thumbnail.png');$('#thumb').val('');return false;" value="取消图片">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>相册图集</th>
+						<td>
+
+							<ul id="photos" class="pic-list unstyled">
+								<foreach name="info['thumbs']['url']" item="vo">
+									<li id="savedimage{$key}">
+										<input id="photo-{$key}" type="hidden" name="photos_url[]" value="{$vo}">
+										<input id="photo-{$key}-name" type="text" name="photos_alt[]" value="{$info['thumbs']['alt'][$key]}" style="width: 200px;" title="图片名称">
+										<img id="photo-{$key}-preview" src="{:sp_get_image_preview_url($vo)}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+										<a href="javascript:upload_one_image('图片上传','#photo-{$key}');">替换</a>
+										<a href="javascript:(function(){ $('#savedimage{$key}').remove();})();">移除</a>
+									</li>
+								</foreach>
+
+
+							</ul>
+							<a href="javascript:upload_multi_image('图片上传','#photos','photos-item-wrapper');" class="btn btn-small">选择图片</a>
+						</td>
+					</tr>
+					<tr>
+						<th>属性价格</th>
+						<td id="attrlist">
+							{$info.attr}
+
+						</td>
+					</tr>
+					<tr>
+						<th>内容</th>
+						<td>
+							<script type="text/plain" id="content" name="details">{$info.details}</script>
+						</td>
+					</tr>
+
+				</table>
+			</div>
+
+		</div>
+		<div class="form-actions">
+			<button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
+			<a class="btn" href="{:U('commodity/commoditylist')}">返回</a>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="__PUBLIC__/js/common.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+</script>
+<script type="text/javascript" src="__PUBLIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__PUBLIC__/js/ueditor/ueditor.all.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $(".checkchang").live('keyup',function () {
+            $(this).attr("value",$(this).val());
+        })
+        $("#addtopattr").click(function () {
+            var num=parseInt($("#addtopattr").attr("s_id"));
+            var html='<table id="['+num+']" s_id="'+num+'" class="table table-bordered" style="margin-bottom: 0px">' +
+                '<tr><td><div style="float:left">属性<input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="套餐'+num+'" /></div>' +
+                '<div style="float:left;width:210px;height:30px" class="prices"><span>价格</span><input type="text" class="checkchang" name="attr['+num+'][price]" style="width:60px;height:15px;" placeholder="0"/>' +
+                '<span>库存</span><input type="text" class="checkchang" name="attr['+num+'][stock]" style="width:60px;height:15px;"  placeholder="0"/></div>' +
+                '<div class="btn btn-small addchild">增加子属性</div><div class="btn btn-small btn-primary delattr" >' +
+                '删除</div></td></tr><tr><td style="padding-left: 50px;"></td></tr></table>';
+            $(this).parent().append(html);
+            num++;
+            $("#addtopattr").attr("s_id",num);
+            $("#attr_str").val($("#attrlist").html());
+        })
+        $(".addchild").live('click',function () {
+            var parentid=$(this).parent().parent().parent().parent().attr("id");
+            var parents_id=$(this).parent().parent().parent().parent().attr("s_id");
+            parents_id=parents_id?parseInt(parents_id):0;
+            var html='<table class="table" id="'+parentid+'[item]['+parents_id+']" style="margin-bottom: 0px"><tr><td><div style="float:left">属性' +
+                '<input type="text" name="attr'+parentid+'[item]['+parents_id+'][name]" style="width:60px;height:15px;" class="checkchang" placeholder="属性'+parents_id+'"/></div>' +
+                '<div style="float:left;width:210px;height:30px" class="prices"><span>价格</span><input type="text" name="attr'+parentid+'[item]['+parents_id+'][price]" class="checkchang" style="width:60px;height:15px;"  placeholder="0"/><span>库存</span>' +
+                '<input type="text" name="attr'+parentid+'[item]['+parents_id+'][stock]" style="width:60px;height:15px;" class="checkchang" placeholder="0"/></div>' +
+                '<div class="btn btn-small addchild">增加子属性</div>' +
+                '<div class="btn btn-small btn-primary delattr">删除</div></td></tr>' +
+                '<tr><td style="padding-left: 50px; border-left: none"></td></tr></table>';
+            $(this).parent().parent().next().children().append(html);
+            $(this).prev().children().hide();
+            parents_id++;
+            $(this).parent().parent().parent().parent().attr("s_id",parents_id);
+            $("#attr_str").val($("#attrlist").html());
+
+
+        })
+        $(".delattr").live('click',function () {
+            if($(this).parent().parent().parent().parent().parent().children().length==1)
+            {
+                $(this).parent().parent().parent().parent().parent().parent().prev().children().children(".prices").children().show()
+
+            }
+            $(this).parent().parent().parent().parent().remove();
+            $("#attr_str").val($("#attrlist").html());
+
+        })
+        $(".js-ajax-close-btn").on('click', function(e) {
+            e.preventDefault();
+            Wind.use("artDialog", function() {
+                art.dialog({
+                    id : "question",
+                    icon : "question",
+                    fixed : true,
+                    lock : true,
+                    background : "#CCCCCC",
+                    opacity : 0,
+                    content : "您确定需要关闭当前页面嘛？",
+                    ok : function() {
+                        setCookie("refersh_time", 1);
+                        window.close();
+                        return true;
+                    }
+                });
+            });
+        });
+        /////---------------------
+        Wind.use('validate', 'ajaxForm', 'artDialog', function() {
+            //javascript
+
+            //编辑器
+            editorcontent = new baidu.editor.ui.Editor();
+            editorcontent.render('content');
+            try {
+                editorcontent.sync();
+            } catch (err) {
+            }
+            //增加编辑器验证规则
+            jQuery.validator.addMethod('editorcontent', function() {
+                try {
+                    editorcontent.sync();
+                } catch (err) {
+                }
+                return editorcontent.hasContents();
+            });
+            var form = $('form.js-ajax-forms');
+            //ie处理placeholder提交问题
+            if ($.browser && $.browser.msie) {
+                form.find('[placeholder]').each(function() {
+                    var input = $(this);
+                    if (input.val() == input.attr('placeholder')) {
+                        input.val('');
+                    }
+                });
+            }
+
+            var formloading = false;
+            //表单验证开始
+            form.validate({
+                //是否在获取焦点时验证
+                onfocusout : false,
+                //是否在敲击键盘时验证
+                onkeyup : false,
+                //当鼠标掉级时验证
+                onclick : false,
+                //验证错误
+                showErrors : function(errorMap, errorArr) {
+                    //errorMap {'name':'错误信息'}
+                    //errorArr [{'message':'错误信息',element:({})}]
+                    try {
+                        $(errorArr[0].element).focus();
+                        art.dialog({
+                            id : 'error',
+                            icon : 'error',
+                            lock : true,
+                            fixed : true,
+                            background : "#CCCCCC",
+                            opacity : 0,
+                            content : errorArr[0].message,
+                            cancelVal : '确定',
+                            cancel : function() {
+                                $(errorArr[0].element).focus();
+                            }
+                        });
+                    } catch (err) {
+                    }
+                },
+                //验证规则
+                rules : {
+                    'name' : {
+                        required : 1
+                    },
+                    'details' : {
+                        editorcontent : true
+                    }
+                },
+                //验证未通过提示消息
+                messages : {
+                    'name' : {
+                        required : '请输入标题'
+                    },
+                    'details' : {
+                        editorcontent : '内容不能为空'
+                    }
+                },
+                //给未通过验证的元素加效果,闪烁等
+                highlight : false,
+                //是否在获取焦点时验证
+                onfocusout : false,
+                //验证通过，提交表单
+                submitHandler : function(forms) {
+                    if (formloading)
+                        return;
+                    $(forms).ajaxSubmit({
+                        url : form.attr('action'), //按钮上是否自定义提交地址(多按钮情况)
+                        dataType : 'json',
+						data:{
+                            'attr_str':$("#attrlist").html(),
+						},
+                        beforeSubmit : function(arr, $form, options) {
+                            formloading = true;
+                        },
+                        success : function(data, statusText, xhr, $form) {
+                            formloading = false;
+                            if (data.status) {
+                                setCookie("refersh_time", 1);
+                                //添加成功
+                                Wind.use("artDialog", function() {
+                                    art.dialog({
+                                        id : "succeed",
+                                        icon : "succeed",
+                                        fixed : true,
+                                        lock : true,
+                                        background : "#CCCCCC",
+                                        opacity : 0,
+                                        content : data.info,
+                                        button : [ {
+                                            name : '继续修改本条？',
+                                            callback : function() {
+                                                reloadPage(window);
+                                                return true;
+                                            },
+                                            focus : true
+                                        }, {
+                                            name : '返回列表页',
+                                            callback : function() {
+                                                location = "{:U('commodity/commoditylist')}";
+                                                return true;
+                                            }
+                                        } ]
+                                    });
+                                });
+                            } else {
+                                	artdialog_alert(data.info);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        ////-------------------------
+    });
+</script>
+</body>
+</html>

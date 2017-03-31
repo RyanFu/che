@@ -1,0 +1,360 @@
+<admintpl file="header" />
+<style type="text/css">
+	.pic-list li {
+		margin-bottom: 5px;
+	}
+
+</style>
+<script type="text/html" id="photos-item-wrapper">
+	<li id="savedimage{id}">
+		<input id="photo-{id}" type="hidden" name="photos_url[]" value="{filepath}">
+		<input id="photo-{id}-name" type="text" name="photos_alt[]" value="{name}" style="width: 160px;" title="图片名称">
+		<img id="photo-{id}-preview" src="{url}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+		<a href="javascript:upload_one_image('图片上传','#photo-{id}');">替换</a>
+		<a href="javascript:(function(){$('#savedimage{id}').remove();})();">移除</a>
+	</li>
+</script>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+	<ul class="nav nav-tabs">
+		<li><a href="{:U('coupon/couponlist')}">优惠劵列表</a></li>
+		<li><a
+				href="{:U('coupon/couponadd',array('term'=>empty($term['term_id'])?'':$term['term_id']))}"
+				target="_self">添加优惠劵</a></li>
+		<li class="active"><a href="#">编辑优惠劵</a></li>
+	</ul>
+	<form action="{:U('coupon/couponeditdo')}" method="post" class="form-horizontal js-ajax-forms"
+		  enctype="multipart/form-data">
+		<input type="hidden" value="{$info.id}" name="id">
+		<div class="row-fluid">
+			<div class="span9">
+				<table class="table table-bordered">
+
+					<tr>
+						<th>名称</th>
+						<td>
+							<input type="text" style="width:400px;" name="name" id="title" required value="{$info.name}"
+								   placeholder="请输入标题"/>
+							<span class="form-required">*</span>
+						</td>
+					</tr>
+					<tr>
+						<th>简介</th>
+						<td>
+                            <textarea name="desc" id="description" style="width: 98%; height: 50px;"
+									  placeholder="请填副标题">{$info.desc}</textarea>
+						</td>
+					</tr>
+					<tr>
+						<th>图片</th>
+						<td>
+							<div style="text-align: left;">
+								<input type="hidden" name="thumb" id="thumb" value="{$info.thumb}">
+								<a href="javascript:upload_one_image('图片上传','#thumb');">
+									<if condition="$info.thumb neq ''">
+										<img src="/data/upload/{$info.thumb}" id="thumb-preview" width="60" style="cursor: hand" />
+										<else />
+										<img src="__TMPL__Public/assets/images/default-thumbnail.png" id="thumb-preview" width="60" style="cursor: hand" />
+									</if>
+								</a>
+								<input type="button" class="btn btn-small" onclick="$('#thumb-preview').attr('src','__TMPL__Public/assets/images/default-thumbnail.png');$('#thumb').val('');return false;" value="取消图片">
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>类型</th>
+						<td id="type_template">
+							{$info.type_template}
+
+						</td>
+					</tr>
+					<tr>
+						<th>适用分类</th>
+						<td id="class_template">
+							{$info.class_template}
+						</td>
+					</tr>
+					<tr>
+						<th>适用商品</th>
+						<td id="goods_template">
+							{$info.goods_template}
+						</td>
+					</tr>
+					<tr>
+						<th>规则说明</th>
+						<td>
+							<script type="text/plain" id="content" name="details">{$info.details}</script>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="span3">
+
+				<table class="table table-bordered" id="flow">
+					<tr>
+						<th><b>发行数量: </b><input type="text" style="width:50px;height: 15px;text-align: center"
+												name="releases_num"
+												value="{$info.releases_num}"/>
+						</th>
+					</tr>
+					<tr>
+						<th><b>限用次数: </b><input type="text" style="width:50px;height: 15px; text-align: center"
+												name="limit_num" required value="{$info.limit_num}"/>次
+						</th>
+					</tr>
+					<tr>
+						<th><b>最低消费: </b><input type="text" style="width:50px;height: 15px; text-align: center"
+												name="min_consume" required value="{$info.min_consume}"/> 元
+						</th>
+					</tr>
+					<tr>
+						<th><b>有效期: </b><input type="text" style="width:50px;height: 15px; text-align: center"
+											   name="expiry_date" required value="{$info.expiry_date}"/> 天
+						</th>
+					</tr>
+					<tr>
+						<th><b>失效期(选填)</b></th>
+					</tr>
+					<tr><td><input type="text" name="expiration_date" value="{$info.expiration_date}" class="js-datetime"
+								   style="width: 160px;height: 15px;"></td>
+
+					</tr>
+
+
+				</table>
+			</div>
+		</div>
+		<div class="form-actions">
+			<button class="btn btn-primary js-ajax-submit" type="submit">提交</button>
+			<a class="btn" href="{:U('coupon/couponlist')}">返回</a>
+		</div>
+	</form>
+</div>
+<script type="text/javascript" src="__PUBLIC__/js/common.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+    $(function () {
+
+    });
+
+</script>
+<script type="text/javascript" src="__PUBLIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__PUBLIC__/js/ueditor/ueditor.all.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".delgoods").live('click',function () {
+            $(this).parent().parent().remove();
+        })
+        $('select[name="classify"]').change(function () {
+            var theval=$(this).val();
+            $(this).children().attr("selected",false);
+            $('select[name="classify"] option[value='+theval+']').attr("selected",true);
+        })
+        $(".delclass").live('click',function () {
+            $(this).parent().parent().remove();
+        })
+        $("#addclass").click(function () {
+            var text=$('select[name="classify"] option[selected]').text().replace("└","").replace(" ","").replace("&nbsp;","");
+            var theval=$(this).prev().val();
+
+            if($("#class-"+theval).attr("id") || theval==0)
+            {
+                return;
+            }
+
+            $("#classlist").append('<tr id="class-'+theval+'"><td>'+text+'<input type="hidden" value="'+theval+'" name="class[]"></td><td style="width: 50px"><div class="btn btn-small delclass">删除</div></td></tr>')
+
+        })
+        $(".radio").change(function () {
+            var checkval=$('input:radio[name="type"]:checked').val();
+            if(checkval==1)
+            {
+                $("#dikou").hide();
+                $("#addtopattr").show();
+                $(".manjian").show();
+            }else{
+                $("#addtopattr").hide();
+                $(".manjian").hide();
+                $("#dikou").show();
+            }
+
+        })
+        $("#addtopattr").click(function () {
+            var num=parseInt($(this).attr("s_id"));
+            var money1=num*100
+            var money2=num*10
+            $("#rulelist").append('<tr><td>满<input type="text" name="man[]" style="width: 50px;height: 15px;" value="'+money1+'">减<input type="text" name="jian[]" style="width: 50px;height: 15px;" value="'+money2+'"><div class="btn btn-small delrule">删除</div></td></tr>')
+            num++;
+            $(this).attr("s_id",num);
+        });
+        $(".delrule").live("click",function () {
+            $(this).parent().parent().remove();
+        })
+        $(".js-ajax-close-btn").on('click', function (e) {
+            e.preventDefault();
+            Wind.use("artDialog", function () {
+                art.dialog({
+                    id: "question",
+                    icon: "question",
+                    fixed: true,
+                    lock: true,
+                    background: "#CCCCCC",
+                    opacity: 0,
+                    content: "您确定需要关闭当前页面嘛？",
+                    ok: function () {
+                        setCookie("refersh_time", 1);
+                        window.close();
+                        return true;
+                    }
+                });
+            });
+        });
+        /////---------------------
+        Wind.use('validate', 'ajaxForm', 'artDialog','iframeTools', function () {
+            $("#addgoods").live('click',function () {
+                art.dialog.open("__ROOT__/index.php?g=service&m=goods&a=coupongoods", {
+                    title : "选择商品",
+                    width : "800px",
+                    height:"700px"
+                });
+            })
+
+            //编辑器
+            editorcontent = new baidu.editor.ui.Editor();
+            editorcontent.render('content');
+            try {
+                editorcontent.sync();
+            } catch (err) {
+            }
+            //增加编辑器验证规则
+            jQuery.validator.addMethod('editorcontent', function () {
+                try {
+                    editorcontent.sync();
+                } catch (err) {
+                }
+                return editorcontent.hasContents();
+            });
+            var form = $('form.js-ajax-forms');
+            //ie处理placeholder提交问题
+            if ($.browser && $.browser.msie) {
+                form.find('[placeholder]').each(function () {
+                    var input = $(this);
+                    if (input.val() == input.attr('placeholder')) {
+                        input.val('');
+                    }
+                });
+            }
+
+            var formloading = false;
+            //表单验证开始
+            form.validate({
+                //是否在获取焦点时验证
+                onfocusout: false,
+                //是否在敲击键盘时验证
+                onkeyup: false,
+                //当鼠标掉级时验证
+                onclick: false,
+                //验证错误
+                showErrors: function (errorMap, errorArr) {
+                    //errorMap {'name':'错误信息'}
+                    //errorArr [{'message':'错误信息',element:({})}]
+                    try {
+                        $(errorArr[0].element).focus();
+                        art.dialog({
+                            id: 'error',
+                            icon: 'error',
+                            lock: true,
+                            fixed: true,
+                            background: "#CCCCCC",
+                            opacity: 0,
+                            content: errorArr[0].message,
+                            cancelVal: '确定',
+                            cancel: function () {
+                                $(errorArr[0].element).focus();
+                            }
+                        });
+                    } catch (err) {
+                    }
+                },
+                //验证规则
+                rules: {
+                    'name': {
+                        required: 1
+                    },
+                    'title': {
+                        editorcontent: true
+                    }
+                },
+                //验证未通过提示消息
+                messages: {
+                    'name': {
+                        required: '请输入标题'
+                    },
+                    'title': {
+                        editorcontent: '内容不能为空'
+                    }
+                },
+                //给未通过验证的元素加效果,闪烁等
+                highlight: false,
+                //是否在获取焦点时验证
+                onfocusout: false,
+                //验证通过，提交表单
+                submitHandler: function (forms) {
+                    if (formloading)
+                        return;
+                    $(forms).ajaxSubmit({
+                        url: form.attr('action'), //按钮上是否自定义提交地址(多按钮情况)
+                        dataType: 'json',
+                        data:{
+                            'type_template':$("#type_template").html(),
+                            'class_template':$("#class_template").html(),
+                            'goods_template':$("#goods_template").html()
+                        },
+                        beforeSubmit: function (arr, $form, options) {
+                            formloading = true;
+                        },
+                        success: function (data, statusText, xhr, $form) {
+                            formloading = false;
+                            if (data.status) {
+                                setCookie("refersh_time", 1);
+                                //添加成功
+                                Wind.use("artDialog", function () {
+                                    art.dialog({
+                                        id: "succeed",
+                                        icon: "succeed",
+                                        fixed: true,
+                                        lock: true,
+                                        background: "#CCCCCC",
+                                        opacity: 0,
+                                        content: data.info,
+                                        button: [{
+                                            name: '继续修改本条？',
+                                            callback: function () {
+                                                reloadPage(window);
+                                                return true;
+                                            },
+                                            focus: true
+                                        }, {
+                                            name: '返回列表页',
+                                            callback: function () {
+                                                location = "{:U('coupon/couponlist')}";
+                                                return true;
+                                            }
+                                        }]
+                                    });
+                                });
+                            } else {
+                                artdialog_alert(data.info);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        ////-------------------------
+    });
+</script>
+</body>
+</html>

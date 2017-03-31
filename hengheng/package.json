@@ -1,0 +1,49 @@
+{
+  "name": "hengheng",
+  "version": "0.0.1",
+  "author": "LiaoPeng",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "query-string": "^4.3.2",
+    "react": "~15.4.1",
+    "react-native": "0.42.3",
+    "react-native-blur": "^2.0.0",
+    "react-native-device-info": "^0.9.9",
+    "react-native-flexi-radio-button": "^0.1.8",
+    "react-native-image-picker": "^0.26.0",
+    "react-native-modalbox": "^1.3.9",
+    "react-native-parabolic": "^1.1.1",
+    "react-native-photo-view": "^1.2.0",
+    "react-native-root-toast": "^1.0.3",
+    "react-native-scrollable-tab-view": "^0.6.0",
+    "react-native-sglistview": "^0.3.10",
+    "react-native-side-menu": "^0.20.1",
+    "react-native-splash-screen": "^2.0.0",
+    "react-native-star-rating": "^1.0.7",
+    "react-native-swipe-list-view": "^0.4.0",
+    "react-native-swipeout": "^2.0.12",
+    "react-native-swiper": "^1.5.4",
+    "react-native-tab-navigator": "^0.3.3",
+    "react-native-update": "^4.0.4",
+    "react-native-vector-icons": "^4.0.0",
+    "react-redux": "^5.0.3",
+    "redux": "^3.6.0",
+    "redux-devtools": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-jest": "19.0.0",
+    "babel-preset-react-native": "1.9.1",
+    "devtools": "0.0.0",
+    "jest": "19.0.2",
+    "react-test-renderer": "~15.4.1",
+    "redux": "^3.6.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

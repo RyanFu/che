@@ -1,0 +1,10 @@
+<?php
+return array (
+  'SERVICE_COMMODITY_COMMODITYLIST' => '实物列表',
+  'SERVICE_COMMODITY_COMMODITYMODELLIST' => '实物模型',
+  'SERVICE_COMMODITY_INDEX' => '实物管理',
+  'SERVICE_GOODS_GOODSLIST' => '商品列表',
+  'SERVICE_GOODS_INDEX' => '商品管理',
+  'SERVICE_SERVICE_MODEL' => '服务模型',
+  'SERVICE_SERVICE_SERVICELIST' => '服务列表',
+);

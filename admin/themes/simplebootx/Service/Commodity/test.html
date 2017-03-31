@@ -1,0 +1,583 @@
+<admintpl file="header"/>
+<style type="text/css">
+    .hover {
+        cursor: pointer;
+    }
+
+    .hoverclass {
+        background: #eeeeee;
+        font-weight: bold;
+    }
+
+    .clickclass {
+        background: #cccccc;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<script type="text/javascript">
+    var  attrgroup = JSON.parse('{$attrgroup}');
+
+    var model = new Array();
+    var num = 3;
+</script>
+<div class="span3 modelattr" id="0">
+    <table class="table table-bordered" id="flow">
+        <tbody>
+        <tr>
+            <th><b>模型属性</b>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                <select name="attr" class="attr">
+                    <option value="0">选择模板</option>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <th>属性名
+            </th>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+<div class="span3 modelattr" id="1">
+    <table class="table table-bordered" id="flow">
+        <tbody>
+        <tr>
+            <th><b>模型属性</b>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                <select name="attr" class="attr">
+                    <option value="0">选择模板</option>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <th>属性名
+            </th>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+<div class="span3 modelattr" id="2">
+    <table class="table table-bordered" id="flow">
+        <tbody>
+        <tr>
+            <th colspan="3"><b>模型属性</b>
+            </th>
+        </tr>
+        <tr>
+            <th colspan="3">
+                <select name="attr" class="attr">
+                    <option value="0">选择模板</option>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                属性名
+            </th>
+            <th>
+                库存
+            </th>
+            <th>
+                价格
+            </th>
+        </tr>
+        <tr class="hover">
+            <td>
+                <input type="hidden" name="flow[]" value="14">
+                黄色
+                <a href="#" onclick="$(this).parent().parent().remove()" class="fa fa-close"
+                   style="cursor: pointer; float: right">
+                </a>
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+        </tr>
+        <tr class="hover">
+            <td>
+                <input type="hidden" name="flow[]" value="14">
+                黄色
+                <a href="#" onclick="$(this).parent().parent().remove()" class="fa fa-close"
+                   style="cursor: pointer; float: right">
+                </a>
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+        </tr>
+        <tr class="hover">
+            <td>
+                <input type="hidden" name="flow[]" value="14">
+                黄色
+                <a href="#" onclick="$(this).parent().parent().remove()" class="fa fa-close"
+                   style="cursor: pointer; float: right">
+                </a>
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+            <td style="padding: 4px">
+                <input type="text" name="flow[]" value="14" style="width: 40px; padding: 0px; margin: 0px;">
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        function editsp(){
+            $(".price").die().live('keyup',function(){
+                var price=$(this).val().replace(/[^\d.]/g,'');
+
+                $(this).val(price);
+                var owndiv=$(this).parent().parent().parent().parent().parent(".span3");
+                var mydivid=parseInt(owndiv.attr("id"));
+                var mynode=$(this).attr("node");
+                if(mydivid==2)
+                {
+                    var prevdiv=owndiv.prev('.span3');
+                    var firstdiv=prevdiv.prev('.span3');
+                    var firstid=firstdiv.children().children().children(".clickclass").children().children("input").val();
+                    var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+                    if(model[mydivid]!=undefined)
+                    {
+                        if(model[mydivid][firstid+'-'+previd]!=undefined)
+                        {
+                            for(var i=0;i<model[mydivid][firstid+'-'+previd].length;i++)
+                            {
+                                if(model[mydivid][firstid+'-'+previd][i]==undefined)
+                                {
+                                    continue;
+                                }
+                                if(model[mydivid][firstid+'-'+previd][i]["id"]==mynode)
+                                {
+                                    model[mydivid][firstid+'-'+previd][i]["price"]=parseFloat(price);
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if(mydivid==1)
+                {
+
+                    var prevdiv=owndiv.prev('.span3');
+                    var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+                    if(model[mydivid]!=undefined)
+                    {
+                        if(model[mydivid][previd]!=undefined){
+                            for(var i=0;i<model[mydivid][previd].length;i++)
+                            {
+                                if(model[mydivid][previd][i]==undefined)
+                                {
+                                    continue;
+                                }
+                                if(model[mydivid][previd][i]["id"]==mynode)
+                                {
+                                    model[mydivid][previd][i]["price"]=parseFloat(price);
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if(mydivid==0)
+                {
+
+                    if(model[mydivid]!=undefined)
+                    {
+                        for(var i=0;i<model[mydivid].length;i++)
+                        {
+                            if(model[mydivid][i]==undefined)
+                            {
+                                continue;
+                            }
+                            if(model[mydivid][i]["id"]==mynode)
+                            {
+                                model[mydivid][i]["price"]=parseFloat(price);
+                            }
+                        }
+
+                    }
+
+                }
+
+            });
+            $(".stock").die().live('keyup',function(){
+                var stock=$(this).val().replace(/[^\d]/g,'');
+
+                $(this).val(stock);
+                var owndiv=$(this).parent().parent().parent().parent().parent(".span3");
+                var mydivid=parseInt(owndiv.attr("id"));
+
+                var mynode=$(this).attr("node");
+                if(mydivid==2)
+                {
+                    var prevdiv=owndiv.prev('.span3');
+                    var firstdiv=prevdiv.prev('.span3');
+                    var firstid=firstdiv.children().children().children(".clickclass").children().children("input").val();
+                    var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+
+                    if(model[mydivid]!=undefined)
+                    {
+
+                        if(model[mydivid][firstid+'-'+previd]!=undefined)
+                        {
+
+                            for(var i=0;i<model[mydivid][firstid+'-'+previd].length;i++)
+                            {
+                                if(model[mydivid][firstid+'-'+previd][i]==undefined)
+                                {
+                                    continue;
+                                }
+
+                                if(model[mydivid][firstid+'-'+previd][i]["id"]==mynode)
+                                {
+                                    model[mydivid][firstid+'-'+previd][i]["stock"]=parseInt(stock);
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if(mydivid==1)
+                {
+                    var prevdiv=owndiv.prev('.span3');
+                    var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+                    if(model[mydivid]!=undefined)
+                    {
+                        if(model[mydivid][previd]!=undefined){
+
+                            for(var i=0;i<model[mydivid][previd].length;i++)
+                            {
+                                if(model[mydivid][previd][i]==undefined)
+                                {
+                                    continue;
+                                }
+
+                                if(model[mydivid][previd][i]["id"]==mynode)
+                                {
+                                    model[mydivid][previd][i]["stock"]=parseInt(stock);
+                                }
+                            }
+                        }
+                    }
+
+                }
+                if(mydivid==0)
+                {
+                    if(model[mydivid]!=undefined)
+                    {
+                        for(var i=0;i<model[mydivid].length;i++)
+                        {
+                            if(model[mydivid][i]==undefined)
+                            {
+                                continue;
+                            }
+                            if(model[mydivid][i]["id"]==mynode)
+                            {
+                                model[mydivid][i]["stock"]=parseInt(stock);
+                            }
+                        }
+
+                    }
+
+                }
+
+            });
+        }
+
+        function falose() {
+            $(".fa-close").unbind('click').click(function () {
+                var mydiv=$(this).parent().parent().parent().parent().parent('.span3');
+                var myid=$(this).prev("input").val();
+                var mydivid=parseInt(mydiv.attr("id"));
+                console.log(000);
+                if(num==3)
+                {
+                    if(mydivid==2)
+                    {
+                        var prevdiv=mydiv.prev(".span3");
+                        var firstdiv=prevdiv.prev(".span3");
+                        var firstid=firstdiv.children().children().children(".clickclass").children().children("input").val();
+                        var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+                        if(model[mydivid]!=undefined)
+                        {
+                            if(model[mydivid][firstid+"-"+previd]!=undefined)
+                            {
+                                for(var i=0; i<model[mydivid][firstid+"-"+previd].length; i++)
+                                {
+                                    if(model[mydivid][firstid+"-"+previd][i]["id"]==myid)
+                                    {
+                                        model[mydivid][firstid+"-"+previd][i]=undefined;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(mydivid==1)
+                    {
+                        var prevdiv=mydiv.prev(".span3");
+                        var nextdiv=mydiv.next(".span3");
+                        var nextdivid=parseInt(nextdiv.attr("id"));
+                        var previd=prevdiv.children().children().children(".clickclass").children().children("input").val();
+                        nextdiv.children().children().children(".hover").remove();
+                        if(model[nextdivid]!=undefined)
+                        {
+                            if(model[nextdivid][previd+"-"+myid]!=undefined)
+                            {
+                                model[nextdivid][previd+"-"+myid]=undefined;
+                            }
+                        }
+                        if(model[mydivid]!=undefined)
+                        {
+                            if(model[mydivid][previd]!=undefined)
+                            {
+                                model[mydivid][previd]=undefined;
+                            }
+
+                        }
+                        mydiv.children().children().children(".hover").eq(1).trigger("click");
+                    }
+                    console.log(model);
+                    if(mydivid==0)
+                    {
+
+                    }
+
+
+                }
+
+
+
+                $(this).parent().parent(".hover").remove();
+            });
+
+        }
+        function addclickclass() {
+
+            $(".hover").die().live('click', function () {
+                $(this).siblings(".hover").removeClass("clickclass");
+                $(this).addClass("clickclass");
+                var myid = $(this).children().children("input").val();
+                var prenode = parseInt($(this).parent().parent().parent(".span3").attr("id"));
+                if (prenode < num) {
+                    var nextnode = $(this).parent().parent().parent(".span3").next(".span3");
+                    var nextid = parseInt(nextnode.attr("id"));
+                    nextnode.children().children().children(".hover").remove();
+                    $(".modelattr").each(function () {
+                        if (parseInt($(this).attr("id")) > prenode) {
+                            $(this).children().children().children(".hover").remove();
+                            $(this).children().children().children().children().children(".attr").find("option[value='0']").attr("selected", true);
+                        }
+                    });
+
+                    if (model[nextid] != undefined) {
+                        if(prenode>0)
+                        {
+                            var key='';
+                            $(".modelattr").each(function () {
+                                if (parseInt($(this).attr("id")) <= prenode) {
+                                    if(parseInt($(this).attr("id")) == prenode-1)
+                                    {
+                                        key+=$(this).children().children().children(".clickclass").children().children("input").val()+'-';
+
+                                    }else{
+                                        key+=$(this).children().children().children(".clickclass").children().children("input").val();
+                                    }
+
+                                }
+                            });
+                            myid=key;
+                        }
+                        if (model[nextid][myid] != undefined) {
+                            var nextlist = model[nextid][myid];
+                            for (var i = 0; i < nextlist.length; i++) {
+                                if(nextlist[i]==undefined)
+                                {
+                                    continue;
+                                }
+                                var classstr = "";
+                                if (i == 0) {
+                                    classstr = " clickclass";
+                                }
+                                if(parseInt(nextnode.attr("id"))==num-1){
+                                    if(nextlist[i]["price"]==undefined)
+                                    {
+                                        nextlist[i]["price"]=0;
+                                    }
+                                    if(nextlist[i]["stock"]==undefined)
+                                    {
+                                        nextlist[i]["stock"]=0;
+                                    }
+                                    var html = '<tr class="hover'+ classstr + '"><td><input type="hidden" name="flow[]" value="' + nextlist[i]["id"] + '">'+ nextlist[i]["name"] +'<a href="#"' +
+                                        ' class="fa fa-close" style="cursor: pointer; float: right"></a></td><td style="padding: 4px"><input type="text" name="flow[]" value="'+nextlist[i]["stock"]+'"' +
+                                        ' style="width: 40px; padding: 0px; margin: 0px;" class="stock" node="' + nextlist[i]["id"] + '"></td> <td style="padding: 4px"><input type="text" name="flow[]" value="'+nextlist[i]["price"]+'" style="width:' +
+                                        ' 40px; padding: 0px; margin: 0px;" class="price" node="' + nextlist[i]["id"] + '"></td></tr>';
+                                }else{
+
+                                var html = "<tr class='hover" + classstr + "'><td><input type='hidden' name='flow[]' value=" + nextlist[i]["id"] + " >" + nextlist[i]["name"] + "<a href='#' class='fa fa-close' style='cursor: pointer; float: right'></a></td></tr>";
+                                }
+                                nextnode.children().children().append(html);
+                                editsp();
+
+                            }
+
+                            if(model[parseInt(nextid)+1]!= undefined)
+                            {
+                                var prvsan=nextlist[0]["id"];
+                                var pre3=myid+'-'+prvsan;
+                                if(model[parseInt(nextid)+1][pre3]!= undefined)
+                                {
+                                    var model3=model[parseInt(nextid)+1][pre3];
+                                    for (var i = 0; i < model3.length; i++) {
+                                        if(model3[i]==undefined)
+                                        {
+                                            continue;
+                                        }
+                                        var classstr = "";
+                                        if (i == 0) {
+                                            classstr = " clickclass";
+                                        }
+                                        if(parseInt(nextnode.next(".span3").attr("id"))==num-1){
+                                            if(model3[i]["price"]==undefined)
+                                            {
+                                                model3[i]["price"]=0;
+                                            }
+                                            if(model3[i]["stock"]==undefined)
+                                            {
+                                                model3[i]["stock"]=0;
+                                            }
+                                            var html = '<tr class="hover'+ classstr + '"><td><input type="hidden" name="flow[]" value="' + model3[i]["id"] + '">'+ model3[i]["name"]  +'<a href="#" ' +
+                                                ' class="fa fa-close" style="cursor: pointer; float: right"></a></td><td style="padding: 4px"><input type="text" name="flow[]" value="'+ model3[i]["stock"]+'"' +
+                                                ' style="width: 40px; padding: 0px; margin: 0px;" class="stock" node="' + model3[i]["id"]+ '"></td> <td style="padding: 4px"><input type="text" name="flow[]" value="'+ model3[i]["price"]+'" style="width:' +
+                                                ' 40px; padding: 0px; margin: 0px;" class="price" node="' + model3[i]["id"] + '"></td></tr>';
+                                        }else {
+                                            var html = "<tr class='hover" + classstr + "'><td><input type='hidden' name='flow[]' value=" + model3[i]["id"] + " >" + model3[i]["name"] + "<a href='#' class='fa fa-close' style='cursor: pointer; float: right'></a></td></tr>";
+                                        }
+                                        nextnode.next(".span3").children().append(html);
+                                    }
+                                }
+                            }
+                        }
+                        editsp();
+                        falose();
+                    }
+                } else {
+                    return false;
+                }
+
+                $(".hover").hover(function () {
+                    $(this).addClass("hoverclass");
+                }, function () {
+                    $(this).removeClass("hoverclass");
+                });
+            });
+            $(".hover").hover(function () {
+                $(this).addClass("hoverclass");
+            }, function () {
+                $(this).removeClass("hoverclass");
+            });
+            editsp();
+            falose();
+        }
+
+        for (var i = 0; i < attrgroup.length; i++) {
+            $(".attr").append('<option value="' + attrgroup[i]["id"] + '">' + attrgroup[i]["name"] + '</option>');
+        }
+        $(".attr").unbind('change').change(function () {
+            $(this).parent().parent().siblings(".hover").remove();
+            var selectval = parseInt($(this).val());
+            var level = parseInt($(this).parent().parent().parent().parent().parent(".span3").attr("id"));
+
+            var list = [];
+            var attrlist = JSON.parse('{$attrstr}');
+            for (var i = 0; i < attrlist[selectval].length; i++) {
+                list[i] = attrlist[selectval][i];
+
+                var classstr = "";
+                if (i == 0) {
+                    classstr = " clickclass";
+                }
+                if(parseInt(level)==num-1){
+                    var html = '<tr class="hover'+ classstr + '"><td><input type="hidden" name="flow[]" value="' + attrlist[selectval][i]['id'] + '">'+ attrlist[selectval][i]['name'] +'<a href="#" class="fa fa-close"' +
+                        ' class="fa fa-close" style="cursor: pointer; float: right"></a></td><td style="padding: 4px"><input type="text" name="flow[]" value="0"' +
+                        ' style="width: 40px; padding: 0px; margin: 0px;" class="stock" node="' + attrlist[selectval][i]['id'] + '"></td> <td style="padding: 4px"><input type="text" name="flow[]" value="0" style="width:' +
+                        ' 40px; padding: 0px; margin: 0px;" class="price" node="' + attrlist[selectval][i]['id'] + '"></td></tr>';
+                }else {
+                    var html = "<tr class='hover" + classstr + "'><td><input type='hidden' name='flow[]' value=" + attrlist[selectval][i]['id'] + " >" + attrlist[selectval][i]['name'] + "<a href='#'  class='fa fa-close' style='cursor: pointer; float: right'></a></td></tr>";
+                }
+                $(this).parent().parent().parent().append(html);
+            }
+            //清空下级
+            $(".modelattr").each(function () {
+                if (parseInt($(this).attr("id")) > level) {
+                    $(this).children().children().children(".hover").remove();
+                    $(this).children().children().children().children().children(".attr").find("option[value='0']").attr("selected", true);
+                }
+            });
+            if (level == 0) {
+                model = new Array();
+                model[level] =[].concat(list);
+
+            } else {
+                var prenode = $(this).parent().parent().parent().parent().parent(".span3").prev(".span3");
+                var preid = prenode.children().children().children(".clickclass").children().children("input").val();
+                //之前的ID
+                var myid=$(this).parent().parent().parent().parent().parent(".span3").attr("id");
+                var key='';
+                if(parseInt(myid)>0)
+                {
+                    $(".span3").each(function () {
+                       if(parseInt($(this).attr("id"))<myid)
+                       {
+                          var keyid = $(this).children().children().children(".clickclass").children().children("input").val();
+                           if(parseInt($(this).attr("id"))==parseInt(myid)-1)
+                           {
+
+                               key+=keyid;
+                           }else{
+                               key+=keyid+'-';
+                           }
+
+                       }
+
+                    });
+                }
+                if(model[level]==undefined)
+                {
+                    model[level]=new Array();
+                }else{
+                    if(model[level][key]!=undefined)
+                    {
+                        model[level][key]=undefined;
+                    }
+                }
+                model[level][key]=[].concat(list);
+            }
+            editsp();
+            addclickclass();
+        });
+
+
+    });
+</script>
+</body>
+</html>

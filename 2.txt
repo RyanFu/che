@@ -1,0 +1,1 @@
+UPDATE `hh_users` SET `device_token`='D6B2BC8D-0F8D-4BE3-A534-DC409F1F242D',`user_pass`='###85422f8739f30400c956cff09ebd0e37',`token`='3YTNl1pwWWWaV2JaqJ2hlYZwlGZvbJtvm5twYuI=' WHERE `id` = 'i'
