@@ -258,14 +258,15 @@ class PublicController extends Controller
     public function getgoodslist()
     {
         //获取商品列表
-        $count=10;
-        $page=0;
+        $count=5;
+        $page=$_POST['page']?$_POST['page']:0;
         $start=$page*$count;
         $order="type ASC";
         //必须上架
         $condition['status']=1;
         $list=M("goods")->where($condition)->order($order)->limit($start,$count)->select();
-        json_return(0,"",$list);
+        $total=M("goods")->where($condition)->count();
+        json_return(0,"",["list"=>$list,"total"=>$total]);
     }
 
 }
