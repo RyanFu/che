@@ -87,7 +87,6 @@
 
 					<tr>
 						<th>属性价格</th>
-						<input type="hidden" value="" id="attr_str" name="attr_str">
 						<td id="attrlist">
 							<div class="btn btn-small" s_id="0" id="addtopattr"  t_id="0">增加顶级属性</div>
 
@@ -122,8 +121,9 @@
         $(".checkchang").live('keyup',function () {
             $(this).attr("value",$(this).val());
         })
-		var t_id=parseInt($("#addtopattr").attr("t_id"));
+
         $("#addtopattr").click(function () {
+            var t_id=parseInt($("#addtopattr").attr("t_id"));
             var num=parseInt($("#addtopattr").attr("s_id"));
             var html='<table id="['+num+']" s_id="'+num+'" class="table table-bordered" style="margin-bottom: 0px">' +
                 '<tr><td><div style="float:left">属性<input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="套餐'+num+'" /></div>' +
@@ -134,7 +134,7 @@
             $(this).parent().append(html);
             num++;
             $("#addtopattr").attr("s_id",num);
-            $("#attr_str").val($("#attrlist").html());
+
             t_id++;
             $("#addtopattr").attr("t_id",t_id);
 
@@ -157,7 +157,7 @@
             $(this).prev().children().hide();
             parents_id++;
             $(this).parent().parent().parent().parent().attr("s_id",parents_id);
-            $("#attr_str").val($("#attrlist").html());
+
             t_id++;
             $("#addtopattr").attr("t_id",t_id);
 
@@ -170,7 +170,7 @@
 
             }
             $(this).parent().parent().parent().parent().remove();
-            $("#attr_str").val($("#attrlist").html());
+
 
         })
 		$(".delgoods").live("click",function () {

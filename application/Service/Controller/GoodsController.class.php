@@ -182,7 +182,7 @@ class GoodsController extends AdminbaseController {
         $this->success("添加成功！");
     }
     /**
-     * 服务编辑页
+     * 套餐编辑页
      */
     public function goodsedit()
     {
@@ -207,7 +207,7 @@ class GoodsController extends AdminbaseController {
         $this->display();
     }
     /**
-     * 服务编辑提交
+     * 套餐编辑提交
      */
     public function goodseditdo()
     {

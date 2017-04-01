@@ -261,14 +261,11 @@ class PublicController extends Controller
         $count=10;
         $page=0;
         $start=$page*$count;
-        $order="id desc";
-        $count=M("goods")->count();
-        $list=M("goods")->order($order)->limit($start,$count)->select();
-        print_r($list);
-    
-        
-
-
+        $order="type ASC";
+        //必须上架
+        $condition['status']=1;
+        $list=M("goods")->where($condition)->order($order)->limit($start,$count)->select();
+        json_return(0,"",$list);
     }
 
 }
