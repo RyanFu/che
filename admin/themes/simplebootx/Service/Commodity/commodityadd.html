@@ -89,6 +89,9 @@
 							<th>属性价格</th>
 							<input type="hidden" value="" id="attr_str" name="attr_str">
 							<td id="attrlist" >
+								<div id="attrgroup" childnum="0"
+								>
+								</div>
 								<div class="btn btn-small" s_id="0" id="addtopattr">增加顶级属性</div>
 
 							</td>
@@ -123,9 +126,19 @@
 				$(this).attr("value",$(this).val());
             })
 		    $("#addtopattr").click(function () {
+
+		        var childnum=parseInt($("#attrgroup").attr("childnum"));
+		        if(childnum==0)
+				{
+                    $("#attrgroup").append('<input style="width: 50px;height: 15px;" type="text" class="attrgroup" s_id="1" id="attrgroup1" placeholder="分组1"/>');
+					$("#attrgroup").attr("childnum",1);
+				}
+				var groupanme=$("#attrgroup1").val()?$("#attrgroup1").val():"属性"
+
+
 		        var num=parseInt($("#addtopattr").attr("s_id"));
 				var html='<table id="['+num+']" s_id="'+num+'" class="table table-bordered" style="margin-bottom: 0px">' +
-					'<tr><td><div style="float:left">属性<input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="套餐'+num+'" /></div>' +
+					'<tr><td><div style="float:left"><input type="hidden" value="'+groupanme+'" name="attr['+num+'][group]" class="groupinput-1"/> <spn class="groupview-1">'+groupanme+'</spn><input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="套餐'+num+'" /></div>' +
 					'<div style="float:left;width:210px;height:30px" class="prices"><span>价格</span><input type="text" class="checkchang" name="attr['+num+'][price]" style="width:60px;height:15px;" placeholder="0"/>' +
 					'<span>库存</span><input type="text" class="checkchang" name="attr['+num+'][stock]" style="width:60px;height:15px;"  placeholder="0"/></div>' +
 					'<div class="btn btn-small addchild">增加子属性</div><div class="btn btn-small btn-primary delattr" >' +
@@ -133,13 +146,42 @@
 				$(this).parent().append(html);
 				num++;
                 $("#addtopattr").attr("s_id",num);
-                $("#attr_str").val($("#attrlist").html());
             })
 			$(".addchild").live('click',function () {
+                var childnum=parseInt($("#attrgroup").attr("childnum"));
                 var parentid=$(this).parent().parent().parent().parent().attr("id");
+				var groupid=0;
+                var groupname="属性";
+
+                if(parentid.indexOf('item')>0){
+                    var n=(parentid.split('item')).length;
+                    if(n>=childnum){
+                        childnum++;
+                        $("#attrgroup").append('<input style="width: 50px;height: 15px;" type="text" class="attrgroup" s_id="'+childnum+'" id="attrgroup'+childnum+'" placeholder="分组'+childnum+'"/>');
+                        $("#attrgroup").attr("childnum",childnum);
+                        groupid=childnum;
+                        groupname=$('#attrgroup'+childnum).val()?$('#attrgroup'+childnum).val():"属性";
+					}else{
+                        n++;
+                        groupid=n;
+                        groupname=$('#attrgroup'+n).val()?$('#attrgroup'+n).val():"属性";
+					}
+
+
+
+				}else{
+                    if(childnum==1)
+					{
+                        $("#attrgroup").append('<input style="width: 50px;height: 15px;" type="text" s_id="2" class="attrgroup" id="attrgroup2" placeholder="分组2"/>');
+                        $("#attrgroup").attr("childnum",2);
+
+					}
+                    groupid=2;
+                    groupname=$('#attrgroup'+groupid).val()?$('#attrgroup'+groupid).val():"属性";
+				}
                 var parents_id=$(this).parent().parent().parent().parent().attr("s_id");
                 parents_id=parents_id?parseInt(parents_id):0;
-			    var html='<table class="table" id="'+parentid+'[item]['+parents_id+']" style="margin-bottom: 0px"><tr><td><div style="float:left">属性' +
+			    var html='<table class="table" id="'+parentid+'[item]['+parents_id+']" style="margin-bottom: 0px"><tr><td><div style="float:left"><input type="hidden" value="'+groupname+'" class="groupinput-'+groupid+'" name="attr'+parentid+'[item]['+parents_id+'][group]"/> <span class="groupview-'+groupid+'">'+groupname+'</span>' +
 					'<input type="text" name="attr'+parentid+'[item]['+parents_id+'][name]" style="width:60px;height:15px;" class="checkchang" placeholder="属性'+parents_id+'"/></div>' +
 					'<div style="float:left;width:210px;height:30px" class="prices"><span>价格</span><input type="text" name="attr'+parentid+'[item]['+parents_id+'][price]" class="checkchang" style="width:60px;height:15px;"  placeholder="0"/><span>库存</span>' +
 					'<input type="text" name="attr'+parentid+'[item]['+parents_id+'][stock]" style="width:60px;height:15px;" class="checkchang" placeholder="0"/></div>' +
@@ -150,9 +192,6 @@
 			    $(this).prev().children().hide();
                 parents_id++;
                 $(this).parent().parent().parent().parent().attr("s_id",parents_id);
-                $("#attr_str").val($("#attrlist").html());
-
-
             })
             $(".delattr").live('click',function () {
                 if($(this).parent().parent().parent().parent().parent().children().length==1)
@@ -161,8 +200,13 @@
 
 				}
                 $(this).parent().parent().parent().parent().remove();
-                $("#attr_str").val($("#attrlist").html());
 
+
+            })
+			$(".attrgroup").live('keyup',function () {
+			    $(this).attr("value",$(this).val());
+				$(".groupview-"+$(this).attr('s_id')).html($(this).val())
+				$(".groupinput-"+$(this).attr('s_id')).val($(this).val());
             })
 			$(".js-ajax-close-btn").on('click', function(e) {
 				e.preventDefault();

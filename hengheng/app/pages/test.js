@@ -18,7 +18,8 @@ import {
     BackAndroid,
     ListView,
     InteractionManager,
-    RefreshControl
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native';
 
 import px2dp from '../util/index';
@@ -26,6 +27,7 @@ import NavBar from '../component/NavBar'
 import Toast from 'react-native-root-toast';
 import Device from 'react-native-device-info';
 import RenderListGoods from "../component/RenderListGoods"
+import Goods from './Goods'
 import request from '../lib/request';
 import set from '../config/config';
 let cacheResults = {
@@ -39,6 +41,7 @@ export default class test extends Component {
         this.state ={
             isLoadingTail: false,
             isRefreshing: false,
+            hasmore:true,
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 != row2,
             }),
@@ -60,7 +63,9 @@ export default class test extends Component {
             });
             if(cacheResults.page>0 && cacheResults.items.length==cacheResults.total)
             {
-                alert("米得啦")
+              this.setState({
+                  hasmore:false
+              })
 
             }
 
@@ -98,10 +103,19 @@ export default class test extends Component {
         }
         return false;
     }
+    _jpgoods(data)
+    {
+        this.props.navigator.push({
+            component:Goods,
+            args:{
+                data:data
+            }
+        })
+    }
 
     _renderRow(db) {
         return (
-            <RenderListGoods db={db}/>
+            <RenderListGoods db={db} jp={this._jpgoods.bind(this)}/>
         )
 
     }
@@ -110,6 +124,7 @@ export default class test extends Component {
         if (!this.state.isRefreshing) {
             this.setState({
                 isRefreshing: true,
+                hasmore:true,
             })
             cacheResults.items = [];
             cacheResults.total = 0;
@@ -120,7 +135,18 @@ export default class test extends Component {
 
 
     }
+    _rendfooter(){
+        return(
+            <View style={{paddingVertical: px2dp(20), alignItems:"center"}}>
+                {this.state.hasmore?
+                <ActivityIndicator />:
+                <Text>没有更多了</Text>
+                }
+            </View>
+            )
 
+
+    }
 
     render() {
         return (
@@ -132,12 +158,13 @@ export default class test extends Component {
                 />
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={this._renderRow}
+                    renderRow={this._renderRow.bind(this)}
                     enableEmptySections={true}
 
                     automaticallyAdjustContentInsets={false}
                     onEndReached={this._fecthdata.bind(this)}
                     onEndReachedThreshold={px2dp(20)}
+                    renderFooter={this._rendfooter.bind(this)}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.isRefreshing}

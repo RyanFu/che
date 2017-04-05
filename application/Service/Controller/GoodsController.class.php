@@ -263,4 +263,5 @@ class GoodsController extends AdminbaseController {
 
     }
 
+
 }

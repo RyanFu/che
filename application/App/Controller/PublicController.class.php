@@ -27,8 +27,7 @@ class PublicController extends Controller
         $checksend = M("verify")->where(["mobile" => $_POST["mobile"], "type" => $_POST["type"], "time" => ["gt", time() - 59]])->find();
         $checksend and json_return(3, "60秒内只能发送一条短信，请稍后");
         //调用发送SDK
-        if($this->sendmessage($mobile,buildmessage($_POST['type'],$verify))<1)
-        {
+        if ($this->sendmessage($mobile, buildmessage($_POST['type'], $verify)) < 1) {
             json_return(4, "验证码发送失败，请重试");
 
         }
@@ -110,6 +109,7 @@ class PublicController extends Controller
             }
         }
     }
+
     public function test()
     {
         echo sp_password("admin");
@@ -177,46 +177,42 @@ class PublicController extends Controller
     public function getCarBrand()
     {
         $brand = M('brand')->field("brand_id as code,brand as name,initial as name_en,brand_logo as icon")->select();
-        $series=M('car_series')->select();
+        $series = M('car_series')->select();
         foreach ($brand as $key => $val) {
             $brand[$key]['icon'] = str_replace(".\\", "/", $val['icon']);
             $brand[$key]['icon'] = str_replace("\\", "/", $brand[$key]['icon']);
-            foreach ($series as $k=>$v)
-            {
-                if($v['brand_id']==$val['code'])
-                {
-                    $temp=[];
-                    $temp["series"]=$v['series'];
-                    $temp["series_id"]=$v['series_id'];
-                    $brand[$key]['list'][]=$temp;
+            foreach ($series as $k => $v) {
+                if ($v['brand_id'] == $val['code']) {
+                    $temp = [];
+                    $temp["series"] = $v['series'];
+                    $temp["series_id"] = $v['series_id'];
+                    $brand[$key]['list'][] = $temp;
                 }
             }
         }
-       die(json_encode($brand));
+        die(json_encode($brand));
     }
 
     public function getcaraddress()
     {
-        $rearr=array();
-        $address=M("plate")->field("abbreviated,province")->select();
-        foreach($address as $v)
-        {
-            $temp["abbreviated"]=$v['abbreviated'];
-            $temp['province']=$v['abbreviated'].'('.$v['province'].')';
-            $rearr[]=$temp;
+        $rearr = array();
+        $address = M("plate")->field("abbreviated,province")->select();
+        foreach ($address as $v) {
+            $temp["abbreviated"] = $v['abbreviated'];
+            $temp['province'] = $v['abbreviated'] . '(' . $v['province'] . ')';
+            $rearr[] = $temp;
 
         }
         die(json_encode($rearr));
 
     }
+
     public function getcarlist()
     {
 
-        $carlist=M("car")->where(['series_id'=>"$_GET[id]"])->field("car_id,carname")->select();
-        foreach ($carlist as $key=>$v)
-        {
-            if($v['carname']=="")
-            {
+        $carlist = M("car")->where(['series_id' => "$_GET[id]"])->field("car_id,carname")->select();
+        foreach ($carlist as $key => $v) {
+            if ($v['carname'] == "") {
                 unset($carlist[$key]);
             }
 
@@ -225,48 +221,187 @@ class PublicController extends Controller
 
 
     }
+
     public function addcar()
     {
-        $_POST['uid']=M("users")->where(['token'=>$_POST['token']])->field("id")->find()["id"];
+        $_POST['uid'] = M("users")->where(['token' => $_POST['token']])->field("id")->find()["id"];
 
-        if($_POST['id'])
-        {
-            $_POST['uid'] or json_return(1,"请重新登陆");
-            M("users_car")->save($_POST)?json_return(0,"修改成功"):json_return(1,"修改失败");
-        }else{
+        if ($_POST['id']) {
+            $_POST['uid'] or json_return(1, "请重新登陆");
+            M("users_car")->save($_POST) ? json_return(0, "修改成功") : json_return(1, "修改失败");
+        } else {
             unset($_POST["id"]);
-            $_POST['uid'] or json_return(1,"请重新登陆");
-            M("users_car")->add($_POST)?json_return(0,"添加成功"):json_return(1,"添加失败");
+            $_POST['uid'] or json_return(1, "请重新登陆");
+            M("users_car")->add($_POST) ? json_return(0, "添加成功") : json_return(1, "添加失败");
         }
 
     }
+
     public function usercarlist()
     {
-        $_POST['uid']=M("users")->where(['token'=>$_POST['token']])->field("id")->find()["id"];
-        $_POST['uid'] or json_return(1,"请重新登陆");
-        $list=M("users_car")->where(['uid'=>$_POST['uid']])->select();
-        json_return(0,"获取成功",$list);
+        $_POST['uid'] = M("users")->where(['token' => $_POST['token']])->field("id")->find()["id"];
+        $_POST['uid'] or json_return(1, "请重新登陆");
+        $list = M("users_car")->where(['uid' => $_POST['uid']])->select();
+        json_return(0, "获取成功", $list);
 
     }
+
     public function userdelcar()
     {
-        $_POST['uid']=M("users")->where(['token'=>$_POST['token']])->field("id")->find()["id"];
-        $_POST['uid'] or json_return(1,"删除失败，请重新登陆");
-        $list=M("users_car")->where(['uid'=>$_POST['uid'],"id"=>$_POST['id']])->delete();
-        $list?json_return(0,"删除成功"):json_return(2,"删除失败");
+        $_POST['uid'] = M("users")->where(['token' => $_POST['token']])->field("id")->find()["id"];
+        $_POST['uid'] or json_return(1, "删除失败，请重新登陆");
+        $list = M("users_car")->where(['uid' => $_POST['uid'], "id" => $_POST['id']])->delete();
+        $list ? json_return(0, "删除成功") : json_return(2, "删除失败");
     }
+    /*
+* @param array $sourceArr 要转换的数组
+　　* @param string $key 数组中确认父子的key，例子中为“id”
+　　* @param string $parentKey 数组中父key，例子中为“parentId”
+　　* @param type $childrenKey 要在树节点上索引子节点的key，例子中为“children”
+　　* @return array 返回生成的树
+　　*/
+    public function arrayToTree($sourceArr, $key, $parentKey, $childrenKey)
+    {
+        $tempSrcArr = array();
+
+        $allRoot = TRUE;
+        foreach ($sourceArr as  $v)
+        {
+            $isLeaf = TRUE;
+            foreach ($sourceArr as $cv )
+            {
+                if (($v[$key]) != $cv[$key])
+                {
+                    if ($v[$key] == $cv[$parentKey])
+                    {
+                        $isLeaf = FALSE;
+                    }
+                    if ($v[$parentKey] == $cv[$key])
+                    {
+                        $allRoot = FALSE;
+                    }
+                }
+            }
+            if ($isLeaf)
+            {
+                $leafArr[$v[$key]] = $v;
+            }
+            $tempSrcArr[$v[$key]] = $v;
+        }
+        if ($allRoot)
+        {
+            return $tempSrcArr;
+        }
+        else
+        {
+            unset($v, $cv, $sourceArr, $isLeaf);
+            foreach ($leafArr as  $v)
+            {
+                if (isset($tempSrcArr[$v[$parentKey]]))
+                {
+                    $tempSrcArr[$v[$parentKey]][$childrenKey] = (isset($tempSrcArr[$v[$parentKey]][$childrenKey]) && is_array($tempSrcArr[$v[$parentKey]][$childrenKey])) ? $tempSrcArr[$v[$parentKey]][$childrenKey] : array();
+                    array_push ($tempSrcArr[$v[$parentKey]][$childrenKey], $v);
+                    unset($tempSrcArr[$v[$key]]);
+                }
+            }
+            unset($v);
+            return $this->arrayToTree($tempSrcArr, $key, $parentKey, $childrenKey);
+        }
+    }
+
     public function getgoodslist()
     {
         //获取商品列表
-        $count=5;
-        $page=$_POST['page']?$_POST['page']:0;
-        $start=$page*$count;
-        $order="type ASC";
+        $count = 5;
+        $page = $_POST['page'] ? $_POST['page'] : 0;
+        $start = $page * $count;
+        $order = "id ASC";
         //必须上架
-        $condition['status']=1;
-        $list=M("goods")->where($condition)->order($order)->limit($start,$count)->select();
-        $total=M("goods")->where($condition)->count();
-        json_return(0,"",["list"=>$list,"total"=>$total]);
+        $condition['status'] = 1;
+        $list = M("goods")->where($condition)->order($order)->limit($start, $count)->select();
+        $attrgoodsids = '';
+        foreach ($list as $key => $v) {
+            $v['thumbs'] = unserialize($v['thumbs']);
+            $list[$key]['thumbs'] = $v['thumbs']['url'];
+            $v['type'] == 1 or $attrgoodsids .= $v['id'] . ',';
+        }
+        $attrgoodsids = rtrim($attrgoodsids);
+        $total = M("goods")->where($condition)->count();
+        $class = M("goods_class")->select();
+        $attrlist = M("goods_attr")->where(['goods_id' => ['in', $attrgoodsids]])->select();
+        $attrarr=[];
+        $goodsprice=[];
+        foreach($attrlist as $av)
+        {
+            if($av['islast']==1){
+                $goodsprice[$av['goods_id']][]=$av['price'];
+            }
+            $attrarr[$av['goods_id']][]=$av;
+        }
+        foreach($goodsprice as $gk=>$gv)
+        {
+            if(min($gv)==max($gv))
+            {
+                $goodsprice[$gk]=min($gv);
+
+            }elseif(min($gv)==0)
+            {
+                $goodsprice[$gk]=max($gv);
+            }else{
+                $goodsprice[$gk]=min($gv).'~'.max($gv);
+            }
+
+        }
+        foreach($attrarr as $key=>$attr)
+        {
+            $attrarr[$key]=$this->arrayToTree($attr,'attr_id','f_id','item');
+
+        }
+        foreach ($list as $k => $val) {
+            unset($list[$k]['details']);
+            foreach ($class as $cv) {
+                if ($cv['id'] == $val['classify']) {
+                    $list[$k]['class_name'] = $cv['name'];
+                }
+            }
+            foreach ($attrarr as $atkey=>$atval)
+            {
+                if($val['id']==$atkey)
+                {
+                    $list[$k]['attrlist']=$atval;
+                }
+
+            }
+            foreach($goodsprice as $gk=>$gv)
+            {
+                if($val['id']==$gk)
+                {
+                    $list[$k]['prices']=$gv;
+                }
+            }
+        }
+        json_return(0, "", ["list" => $list, "total" => $total]);
+    }
+
+    /**
+     * 商品详情单页
+     */
+    public function goodsdetails()
+    {
+        $_GET['id'] or function () {
+            echo "商品不存在";
+        };
+        $info = M("goods")->field("name,details")->where(['id' => $_GET['id']])->find();
+        $this->assign("info", $info);
+        $this->display();
+    }
+
+    public function getgoodsinfo()
+    {
+        $id = $_GET['id'];
+        $info = M('goods')->where(['id' => $id])->find();
+        json_return(0, "", $info);
+
     }
 
 }

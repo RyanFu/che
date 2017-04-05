@@ -9,13 +9,15 @@ import {
     ListView,
     Platform,
     PixelRatio,
-
+    RefreshControl,
     ScrollView,
+    InteractionManager,
     Dimensions,
     StyleSheet,
 } from 'react-native';
 import px2dp from '../util/index'
 import set from '../config/config';
+import request from '../lib/request'
 import Icon from 'react-native-vector-icons/Ionicons'
 import StarRating from 'react-native-star-rating';
 const {width, height} = Dimensions.get('window')
@@ -25,6 +27,8 @@ export default class GoodsDetail extends Component {
         super(props);
         this.state = {
             reload: true,
+            isRefreshing: false,
+            goods:this.props.goods
         }
     }
 
@@ -36,9 +40,36 @@ export default class GoodsDetail extends Component {
             return true;
         }
         return false;
-
     }
 
+    componentDidMount() {
+        InteractionManager.runAfterInteractions(this._onRefresh())
+
+    }
+    _onRefresh() {
+        if (!this.state.isRefreshing) {
+            this.setState({
+                isRefreshing: true,
+            })
+            var databody={
+                id:this.props.goods.id
+            }
+            request.get(set.baseurl+set.interface.getgoodsinfo,databody).then((data)=>{
+                if(parseInt(data.status)==0)
+                {
+                    this.setState({
+                        isRefreshing: false,
+                    })
+                }
+
+            }).catch((err)=>{
+                alert("网络错误");
+            })
+
+
+        }
+
+    }
     renderComments() {
         return [
             {
@@ -164,27 +195,45 @@ export default class GoodsDetail extends Component {
                 )
             })
     }
-
+    renderSwiper(){
+        content=[];
+        this.state.goods.thumbs.map((item,i)=>{
+            content.push(
+                <Image
+                    key={i}
+                    style={{flex:1}}
+                    source={{uri:set.baseurl+"data/upload/"+item}}
+                />
+            )
+        })
+        return content;
+    }
 
     render() {
         return (
-            <ScrollView style={styles.center} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.center} showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.isRefreshing}
+                                onRefresh={this._onRefresh.bind(this)}
+                                tintColor="#ea3524"
+                                colors={['#ddd', '#e83e41']}
+                                progressBackgroundColor="#ffffff"
+                            />
+                        }
+            >
                 <View >
                     <Swiper height={240} autoplay={true}>
-                        <View style={styles.slide1}>
-                            <Text style={styles.text}>第一张</Text>
-                        </View>
-                        <View style={styles.slide2}>
-                            <Text style={styles.text}>第二张</Text>
-                        </View>
-                        <View style={styles.slide3}>
-                            <Text style={styles.text}>第三张</Text>
-                        </View>
+
+                        {this.renderSwiper()}
                     </Swiper>
                 </View>
                 <View style={styles.goodstitle}>
-                    <Text style={{color: '#333333'}}>
-                        【官方标配】准系统 i7 7700k 32G 2T GTX1080 3月8号特价 赠SSD 包 鼠标 机械键盘 32寸液晶显示器
+                    <Text style={{color: '#333333',fontSize:px2dp(14)}}>
+                        【{this.state.goods.class_name}】{this.state.goods.name}
+                    </Text>
+                    <Text numberOfLines={2} style={{paddingHorizontal:px2dp(8),color:"#333333", marginVertical:px2dp(5),fontSize:px2dp(12)}}>
+                        {this.state.goods.title}
                     </Text>
                     <View style={styles.goodslable}>
                         <View style={styles.goodslablesgroup}>
@@ -208,10 +257,10 @@ export default class GoodsDetail extends Component {
                                 ￥
                             </Text>
                             <Text style={styles.goodsprice}>
-                                9999.99
+                                {this.state.goods.prices}
                             </Text>
                             <Text style={styles.goodsmallnum}>
-                                己有9999人购买
+                                己有{this.state.goods.sales}人购买
                             </Text>
                         </View>
                         <View style={styles.goodscollect}>
@@ -440,24 +489,7 @@ const styles = StyleSheet.create({
     center: {
         backgroundColor: '#eeeeee'
     },
-    slide1: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#9DD6EB',
-    },
-    slide2: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#97CAE5',
-    },
-    slide3: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#92BBD9',
-    },
+
     text: {
         color: '#fff',
         fontSize: px2dp(30),

@@ -79,7 +79,7 @@ class CommodityController extends AdminbaseController {
             $this->attrid++;
             $islast=$val['item']?0:1;
             $s_name=$f_name?$f_name.' '.$val['name']:$val['name'];
-            $this->attrlist[]=['attr_id'=>$this->attrid,'islast'=>$islast,'f_name'=>$s_name,'goods_id'=>$goods_id,'name'=>$val['name'],'f_id'=>$k,'stock'=>$val['stock'],'price'=>$val['price']];
+            $this->attrlist[]=['attr_id'=>$this->attrid,'islast'=>$islast,'f_name'=>$s_name,'goods_id'=>$goods_id,'name'=>$val['name'],'group'=>$val['group'],f_id=>$k,'stock'=>$val['stock'],'price'=>$val['price']];
             $this->setattr($val['item'],$goods_id,$this->attrid,$s_name);
 
         }

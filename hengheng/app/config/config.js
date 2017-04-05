@@ -18,6 +18,7 @@ let set={
         usercarlist:'index.php?g=app&m=public&a=usercarlist',
         userdelcar:'index.php?g=app&m=public&a=userdelcar',
         getgoodslist:'index.php?g=app&m=public&a=getgoodslist',
+        getgoodsinfo:'index.php?g=app&m=public&a=getgoodsinfo',
     },
 
 }

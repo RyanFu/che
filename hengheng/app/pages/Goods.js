@@ -37,6 +37,7 @@ import Modal from 'react-native-modalbox';
 import PhotoView from 'react-native-photo-view'
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 let {width, height} = Dimensions.get('window')
+let attrstuct={}
 const renderPagination = (index, total, context) => {
     return (
         <View style={{
@@ -92,7 +93,8 @@ export default class Goods extends Component {
                 'https://placeholdit.imgix.net/~text?txtsize=29&txt=350%C3%971150&w=350&h=1150'
             ],
             showViewer: false,
-            showIndex: 0
+            showIndex: 0,
+            goods:this.props.data,
         };
         this.viewerPressHandle = this.viewerPressHandle.bind(this)
         this.thumbPressHandle = this.thumbPressHandle.bind(this)
@@ -164,7 +166,8 @@ export default class Goods extends Component {
             })
         }
     }
-    showViewer(){
+
+    showViewer() {
         this.setState({
             imgList: [
                 set.baseurl + 'data/upload/avatar/15_thumb_1488773131.jpg',
@@ -189,7 +192,14 @@ export default class Goods extends Component {
             showViewer: false
         })
     }
+    attrlist(id)
+    {
+        var att=this.state.goods.attrlist
+        for (var Key in att){
+            alert(Key+"------"+att[Key].id);
+        }
 
+    }
     thumbPressHandle(i) {
 
         this.setState({
@@ -209,12 +219,9 @@ export default class Goods extends Component {
             }
         return (
             <View style={styles.container}>
-                {this.state.showViewer && <Viewer
-                    index={this.state.showIndex}
-                    pressHandle={this.viewerPressHandle}
-                    imgList={this.state.imgList}/>}
 
-                <Animated.View style={{flex:1,transform: [{scale:this.state.modelmargin}]}}>
+
+                <Animated.View style={{flex: 1, transform: [{scale: this.state.modelmargin}]}}>
                     <ScrollableTabView
                         renderTabBar={() => <CustomTabBar pullDownOnPress={this.handleBack.bind(this)}/>}
                         tabBarBackgroundColor="rgb(22,131,251)"
@@ -222,13 +229,13 @@ export default class Goods extends Component {
                         tabBarInactiveTextColor="rgba(255,255,255,0.5)"
                         tabBarTextStyle={{fontSize: theme.scrollView.fontSize}}
                         tabBarUnderlineStyle={theme.scrollView.underlineStyle}>
-                        <GoodsDetail tabLabel='商品' showViewer={this.showViewer.bind(this)} />
+                        <GoodsDetail goods={this.props.data} tabLabel='商品' showViewer={this.showViewer.bind(this)}/>
 
                         <WebView tabLabel="详情"
                                  ref={'webview'}
                                  automaticallyAdjustContentInsets={false}
                                  style={styles.webView}
-                                 source={{uri: 'https://m.baidu.com'}}
+                                 source={{uri: set.baseurl + "index.php?g=app&m=public&a=goodsdetails&id=" + this.props.data.id}}
                                  javaScriptEnabled={true}
                                  domStorageEnabled={true}
                                  decelerationRate="normal"
@@ -262,7 +269,8 @@ export default class Goods extends Component {
                                       style={{textAlign: 'center'}}/>
                             </View>
                         </View>
-                        <TouchableOpacity onPress={this.addtocart.bind(this)} style={{flex: 1, height: px2dp(40), justifyContent: "center"}}>
+                        <TouchableOpacity onPress={this.addtocart.bind(this)}
+                                          style={{flex: 1, height: px2dp(40), justifyContent: "center"}}>
                             <Text style={{textAlign: 'center', color: "#e83e41"}}>
                                 立即购买
                             </Text>
@@ -282,7 +290,7 @@ export default class Goods extends Component {
                     </View>
                 </Animated.View>
                 <Modal style={styles.modal} position={"bottom"} backdropOpacity={0.8} ref={"modal"} swipeToClose={false}
-                       onbackClose={this.closebtn.bind(this)} >
+                       onbackClose={this.closebtn.bind(this)}>
                     <View style={{
                         flex: 1,
                         marginTop: 20,
@@ -294,7 +302,7 @@ export default class Goods extends Component {
                         <View style={{
                             flexDirection: 'row',
                             borderBottomWidth: px2dp(1),
-                            borderBottomColor: '#eeeeee',
+                            borderBottomColor: '#cccccc',
                             height: px2dp(70),
 
                             paddingLeft: px2dp(10),
@@ -317,9 +325,12 @@ export default class Goods extends Component {
                                 </View>
                             </View>
                         </View>
+                        <ScrollView
+                                style={{backgroundColor:"#ffffff", paddingBottom:px2dp(10)}}
+                        >
                         <View style={{
-                            borderBottomWidth: px2dp(1),
-                            borderBottomColor: '#eeeeee',
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#cccccc',
                             paddingTop: px2dp(5), paddingBottom: px2dp(5),
                             backgroundColor: "#ffffff",
 
@@ -331,75 +342,63 @@ export default class Goods extends Component {
                             <View style={{paddingTop: px2dp(5), paddingBottom: px2dp(5)}}>
 
 
-                                <Text>
-                                    服务
-                                </Text>
-                                <RadioGroup size={0} thickness={0}
-                                            onSelect={(index, value) => this.onSelect(index, value)}
-                                            style={{flexDirection: 'row', marginTop: px2dp(5), flexWrap: 'wrap'}}
-                                >
-                                    <RadioButton value={'item1'} style={{
-                                        borderWidth: px2dp(1),
-                                        marginTop: px2dp(8),
-                                        height: px2dp(20),
-                                        borderColor: '#e83e41',
-                                        borderRadius: px2dp(4),
-                                        padding: px2dp(3),
-                                        marginRight: px2dp(8),
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}>
-                                        <Text style={{
-                                            color: '#e83e41',
-                                            fontSize: px2dp(12),
-                                        }}>
-                                            倒车影像安装
-                                        </Text>
-                                    </RadioButton>
-                                    <RadioButton value={'item1'} style={{
-                                        borderWidth: px2dp(1),
-                                        marginTop: px2dp(8),
-                                        height: px2dp(20),
-                                        borderColor: '#e83e41',
-                                        borderRadius: px2dp(4),
-                                        padding: px2dp(3),
-                                        marginRight: px2dp(8),
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}>
-                                        <Text style={{
-                                            color: '#e83e41',
-                                            fontSize: px2dp(12),
-                                        }}>
-                                            倒车影像安装
-                                        </Text>
-                                    </RadioButton>
 
-                                    <RadioButton value={'item1'} style={{
-                                        borderWidth: px2dp(1),
-                                        marginTop: px2dp(8),
-                                        height: px2dp(20),
-                                        borderColor: '#e83e41',
-                                        borderRadius: px2dp(4),
-                                        padding: px2dp(3),
-                                        marginRight: px2dp(8),
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}>
-                                        <Text style={{
-                                            color: '#e83e41',
-                                            fontSize: px2dp(12),
-                                        }}>
-                                            倒车影像安装
+                                <View>
+
+                                    <View style={styles.attlistview}>
+                                        <View style={{width:40}}>
+                                            <Text>
+                                                配置:
+                                            </Text>
+                                        </View>
+                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                        </View>
+
+                                    </View>
+                                    <View style={styles.attlistview}>
+                                        <View style={{width:40}}>
+                                            <Text>
+                                                配置:
+                                            </Text>
+                                        </View>
+                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                            <Text style={styles.attlist}>11111111111</Text>
+                                        </View>
+
+                                    </View>
+
+                                    <View style={styles.attlistview}>
+                                        <View style={{width:40}}>
+                                        <Text>
+                                            配置:
                                         </Text>
-                                    </RadioButton>
-                                </RadioGroup>
+                                        </View>
+                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
+                                        <Text style={styles.attlist}>11111111111</Text>
+                                        <Text style={styles.attlist}>11111111111</Text>
+                                        <Text style={styles.attlist}>11111111111</Text>
+                                        <Text style={styles.attlist}>11111111111</Text>
+                                        <Text style={styles.attlist}>11111111111</Text>
+                                        </View>
+
+                                    </View>
+                                </View>
+
 
 
                             </View>
 
                         </View>
-                        <View style={{flex: 1, backgroundColor: "#ffffff"}}>
+                        <View style={{flex: 1, backgroundColor: "#ffffff",marginBottom:px2dp(10)}}>
 
                             <View style={{
                                 height: px2dp(40),
@@ -456,6 +455,8 @@ export default class Goods extends Component {
 
                             </View>
                         </View>
+                        </ScrollView>
+
 
 
                         <TouchableOpacity style={{
@@ -466,7 +467,7 @@ export default class Goods extends Component {
                         </TouchableOpacity>
 
                     </View>
-                    <Image source={{uri: set.baseurl + '/data/upload/avatar/15_thumb_1488773131.jpg'}}
+                    <Image source={{uri: set.baseurl + '/data/upload/'+this.state.goods.thumb}}
                            style={{
                                width: px2dp(80), height: px2dp(80), borderRadius: px2dp(10),
                                position: "absolute", top: 0, left: px2dp(15)
@@ -477,7 +478,7 @@ export default class Goods extends Component {
                             height: 40,
                             justifyContent: 'center',
                             alignItems: 'center'
-                        }}>
+                        }} onPress={this.attrlist.bind(this)}>
                             <Text style={{fontSize: px2dp(14), color: '#ffffff'}}>
                                 确定
                             </Text>
@@ -485,19 +486,41 @@ export default class Goods extends Component {
                     </View>
 
                 </Modal>
-
+                {this.state.showViewer && <Viewer
+                    index={this.state.showIndex}
+                    pressHandle={this.viewerPressHandle}
+                    imgList={this.state.imgList}/>}
 
             </View>
         )
     }
 }
 const styles = StyleSheet.create({
+    attlistactive:{
+        borderColor:"#ea3524", borderWidth:1, paddingHorizontal:px2dp(5),
+        paddingVertical:px2dp(3), borderRadius:px2dp(5), margin:px2dp(5),
+        color:"#ea3524"
+
+    },
+    attlist:{
+        borderColor:"#cccccc", borderWidth:1, paddingHorizontal:px2dp(5),
+        paddingVertical:px2dp(3), borderRadius:px2dp(5), margin:px2dp(5)
+
+    },
+    attlistview:{
+        flexDirection:'row',
+        alignItems:"center",
+        flexWrap:"wrap",
+        paddingBottom:px2dp(3),
+        borderBottomColor:"#cccccc",
+        borderBottomWidth:1
+    },
     wrapper: {
         top: 0,
         right: 0,
         bottom: 0,
         left: 0,
-        backgroundColor:"#000000",
+        backgroundColor: "#000000",
     },
     slide: {
         flex: 1,
@@ -508,7 +531,7 @@ const styles = StyleSheet.create({
         width,
         height,
         flex: 1,
-        backgroundColor:"#333333"
+        backgroundColor: "#000000"
     },
     imgtext: {
         color: '#fff',
@@ -652,7 +675,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#000000",
         flexDirection: 'row',
-        position:"relative"
+        position: "relative"
     },
     center: {
         backgroundColor: '#eeeeee'
