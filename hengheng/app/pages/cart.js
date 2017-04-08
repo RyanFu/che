@@ -16,6 +16,10 @@ import {
     ListView,
     BackAndroid,
     PixelRatio,
+    ActivityIndicator,
+    AsyncStorage,
+    InteractionManager,
+    RefreshControl,
     Animated
 } from 'react-native'
 import px2dp from '../util/index'
@@ -24,18 +28,21 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import set from '../config/config'
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import orderSub from './ordersub'
+let carlist=[]
 export default class cart extends Component {
     constructor(props) {
         super(props);
-        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            cartlist: null,
             token: '',
-            listViewData: Array(20).fill('').map((_, i) => `item #${i}`)
+            isRefreshing:false,
+            dataSource: new ListView.DataSource({
+                rowHasChanged: (row1, row2) => row1 != row2,
+            }),
         }
     }
     emptycart() {
-        alert("清空");
+        AsyncStorage.removeItem("cartlist");
+        this._onRefresh()
     }
 
     decreasenum() {
@@ -44,11 +51,60 @@ export default class cart extends Component {
         }
     }
 
+    componentDidMount() {
+
+        InteractionManager.runAfterInteractions(this._onRefresh());
+    }
+    _onRefresh()
+    {
+
+
+        if(!this.state.isRefreshing){
+            carlist.splice(0,carlist.length);
+            this.setState({
+                isRefreshing:true
+            })
+            AsyncStorage.getItem("cartlist").then((data)=>{
+
+                if(data)
+                {
+
+                    var temdata=JSON.parse(data);
+                    for(var key in temdata)
+                    {
+                        carlist.push(temdata[key]);
+                    }
+
+
+                }
+                this.setState({
+                    dataSource:this.state.dataSource.cloneWithRows(carlist),
+                    isRefreshing:false
+                })
+
+            }).catch((err)=>{alert(err)
+                this.setState({
+                    isRefreshing:false
+                })
+            });
+
+
+        }
+
+
+    }
+
     addnum() {
 
     }
+    delgoods(data)
+    {
+        alert("a");
+    }
     ordersub()
     {
+        console.log(carlist)
+        return
         this.props.navigator.push({
             component:orderSub
         })
@@ -71,17 +127,27 @@ export default class cart extends Component {
                         <Text style={{fontSize: 12, color: "#ffffff"}}>清空</Text>
                     </TouchableOpacity>
                 </View>
-                <SwipeListView
-                    dataSource={this.ds.cloneWithRows(this.state.listViewData)}
-                    renderRow={ (data, secId, rowId, rowMap) => (
+                {carlist.length>0?<SwipeListView
+                    dataSource={this.state.dataSource}
+                    enableEmptySections={true}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.isRefreshing}
+                            onRefresh={this._onRefresh.bind(this)}
+                            tintColor="#ea3524"
+                            colors={['#ddd', '#e83e41']}
+                            progressBackgroundColor="#ffffff"
+                        />
+                    }
+                    renderRow={ (data) => (
                         <SwipeRow
                             disableRightSwipe={true}
                             rightOpenValue={-60}
                             stopRightSwipe={-100}
                         >
+
                             <View style={styles.standaloneRowBack}>
-                                <Text style={styles.backTextWhite}>Left</Text>
-                                <Text style={styles.backTextWhite}>删除</Text>
+                                <Text style={styles.backTextWhite} onPress={this.delgoods.bind(this,data)}>删除</Text>
                             </View>
                             <View style={styles.standaloneRowFront}>
                                 <View style={{
@@ -99,27 +165,25 @@ export default class cart extends Component {
                                     </View>
                                     <View style={{flex: 3}}>
                                         <Image
-                                            source={{uri: set.baseurl + 'data/upload/avatar/15_thumb_1488773131.jpg'}}
+                                            source={{uri: set.baseurl + 'data/upload/'+data.goods.thumb}}
                                             style={{width: px2dp(90), height: px2dp(90)}}/>
                                     </View>
                                     <View style={{flex: 6}}>
-                                        <Text numberOfLines={2} style={{fontSize: px2dp(12), flex: 1}}>外星人准系统X991 桌面级CPU
-                                            I7 7700K
-                                            有钱人必备神器有钱人必备神器有钱人必备神器</Text>
+                                        <Text numberOfLines={2} style={{fontSize: px2dp(12), flex: 1}}>【{data.goods.class_name}】{data.goods.name} {data.attr.f_name}</Text>
                                         <Text numberOfLines={2}
-                                              style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>外星人准系统X991
-                                            桌面级CPU，I7 7700K
-                                            有钱人必备神器</Text>
-                                        <View style={{flexDirection: 'row', flex: 1, alignItems: 'center',}}>
+                                              style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>{data.goods.title}
+                                            </Text>
+                                        <View style={{flexDirection: 'row', flex: 1, alignItems: 'center',
+                                            justifyContent:'space-between'
+                                        }}>
                                             <Text style={{fontSize: px2dp(11), color: "#e83e41"}}>￥<Text
-                                                style={{fontSize: px2dp(12)}}>599.00</Text></Text>
+                                                style={{fontSize: px2dp(12)}}>{data.price}</Text></Text>
                                             <Text style={{
                                                 fontSize: px2dp(12),
-                                                textDecorationLine: "line-through",
                                                 color: "#bcbcbc",
                                                 marginLeft: px2dp(5)
-                                            }}>￥2109.00</Text>
-                                            <View style={{flex: 1, flexDirection: 'row', marginLeft: px2dp(5)}}>
+                                            }}>￥{data.total}</Text>
+                                            <View style={{width:px2dp(80), flexDirection: 'row', marginLeft: px2dp(5)}}>
                                                 <TouchableOpacity style={{
                                                     flex: 1,
                                                     borderWidth: 1,
@@ -128,7 +192,7 @@ export default class cart extends Component {
                                                     alignItems: "center"
                                                 }} onPress={this.decreasenum.bind(this)}>
                                                     <Text style={{
-                                                        fontSize: px2dp(18),
+                                                        fontSize: px2dp(16),
                                                     }}>
                                                         -
                                                     </Text>
@@ -136,31 +200,31 @@ export default class cart extends Component {
                                                 <View style={{
                                                     flex: 1,
                                                     borderTopWidth: 1,
-                                                    height: px2dp(30),
-                                                    width: px2dp(35),
+                                                    height: px2dp(23),
+                                                    width: px2dp(25),
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center",
                                                     borderBottomWidth: 1
                                                 }}>
                                                     <Text style={{
-                                                        fontSize: px2dp(18),
+                                                        fontSize: px2dp(14),
                                                         color: '#333333'
                                                     }}>
-                                                        {this.state.num}
+                                                        {data.num}
                                                     </Text>
                                                 </View>
                                                 <TouchableOpacity style={{
                                                     flex: 1,
                                                     borderWidth: 1,
-                                                    height: px2dp(30),
-                                                    width: px2dp(35),
+                                                    height: px2dp(23),
+                                                    width: px2dp(25),
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center"
                                                 }} onPress={this.addnum.bind(this)}>
                                                     <Text style={{
-                                                        fontSize: px2dp(18),
+                                                        fontSize: px2dp(16),
                                                     }}>
                                                         +
                                                     </Text>
@@ -172,7 +236,10 @@ export default class cart extends Component {
                             </View>
                         </SwipeRow>
                     )}
-                />
+                />:<View style={{flex:1, justifyContent:'center', alignItems:'center'}}><Text>购物车里啥都没有</Text><Text
+                        style={{paddingHorizontal:px2dp(15),borderWidth:1, borderColor:"#ea3524",color:"#ea3524",
+                            paddingVertical:px2dp(3),borderRadius:5,margin:px2dp(10)
+                        }} onPress={this._onRefresh.bind(this)}>刷新</Text></View>}
 
 
                 <View style={{
@@ -211,11 +278,19 @@ export default class cart extends Component {
                 </View>
 
             </View>
+
         );
     }
 }
 
 const styles = StyleSheet.create({
+    backTextWhite:{
+        height:px2dp(120),
+        lineHeight:px2dp(120),
+        width:px2dp(60),
+        marginRight: 0,
+        textAlign:"center",
+    },
     standaloneRowFront: {
         alignItems: 'center',
         backgroundColor: '#f0f0f0',
@@ -227,8 +302,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#8BC645',
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
+        justifyContent: 'flex-end',
+
 
     },
     view: {

@@ -329,6 +329,7 @@ class PublicController extends Controller
         $total = M("goods")->where($condition)->count();
         $class = M("goods_class")->select();
         $attrlist = M("goods_attr")->where(['goods_id' => ['in', $attrgoodsids]])->select();
+
         $attrarr=[];
         $goodsprice=[];
         foreach($attrlist as $av)
@@ -336,8 +337,12 @@ class PublicController extends Controller
             if($av['islast']==1){
                 $goodsprice[$av['goods_id']][]=$av['price'];
             }
-            $attrarr[$av['goods_id']][]=$av;
+            $av['selected']=false;
+            $av['show']=false;
+            $attrarr[$av['goods_id']][$av['group']][]=$av;
         }
+
+
         foreach($goodsprice as $gk=>$gv)
         {
             if(min($gv)==max($gv))
@@ -350,11 +355,6 @@ class PublicController extends Controller
             }else{
                 $goodsprice[$gk]=min($gv).'~'.max($gv);
             }
-
-        }
-        foreach($attrarr as $key=>$attr)
-        {
-            $attrarr[$key]=$this->arrayToTree($attr,'attr_id','f_id','item');
 
         }
         foreach ($list as $k => $val) {

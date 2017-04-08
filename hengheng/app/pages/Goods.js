@@ -12,7 +12,7 @@ import {
     StyleSheet,
     ScrollView,
     Animated,
-    AlertIOS,
+    AsyncStorage,
     Platform,
     findNodeHandle,
     Image,
@@ -22,6 +22,8 @@ import {
     PixelRatio,
     TextInput,
     WebView,
+    InteractionManager,
+    ActivityIndicator
 
 } from 'react-native'
 import ScrollableTabView, {DefaultTabBar,}from 'react-native-scrollable-tab-view';
@@ -35,9 +37,12 @@ import set from '../config/config';
 import Comments from './Comments'
 import Modal from 'react-native-modalbox';
 import PhotoView from 'react-native-photo-view'
+import RenderGoodsAttr from '../component/RenderGoodsAttr'
+import cart from './cart'
+import order from './ordersub'
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 let {width, height} = Dimensions.get('window')
-let attrstuct={}
+let cartlist = []
 const renderPagination = (index, total, context) => {
     return (
         <View style={{
@@ -85,7 +90,7 @@ export default class Goods extends Component {
         this.state = {
             starCount: 2.5,
             modelmargin: new Animated.Value(1),
-            num: 0,
+            num: 1,
             select: null,
             imgList: [
                 'https://avatars3.githubusercontent.com/u/533360?v=3&s=466',
@@ -94,7 +99,11 @@ export default class Goods extends Component {
             ],
             showViewer: false,
             showIndex: 0,
-            goods:this.props.data,
+            goods: this.props.data,
+            isnowbuy: false,
+            showmask: false,
+            showok: false,
+            selectgoodsattr:{}
         };
         this.viewerPressHandle = this.viewerPressHandle.bind(this)
         this.thumbPressHandle = this.thumbPressHandle.bind(this)
@@ -106,12 +115,25 @@ export default class Goods extends Component {
         BackAndroid.removeEventListener('hardwareBackPress', this.handleBack);
     }
 
-    componentDidMount() {
-
-
-        BackAndroid.addEventListener('hardwareBackPress', this.handleBack);
+    getcartlist() {
+        cartlist.splice(0,cartlist.length);
+        AsyncStorage.getItem("cartlist").then((data) => {
+            if (data) {
+                var list= JSON.parse(data);
+                for(var key in list)
+                {
+                    cartlist.push(list[key]);
+                }
+            } 
+        })
     }
 
+    componentDidMount() {
+        InteractionManager.runAfterInteractions(() => {
+             this.getcartlist()
+        })
+        BackAndroid.addEventListener('hardwareBackPress', this.handleBack);
+    }
 
     handleBack = () => {
         const navigator = this.props.navigator;
@@ -125,27 +147,17 @@ export default class Goods extends Component {
     _handleTabNames(tabNames) {
         this.setState({tabNames: tabNames});
     }
-
-    _pullDownCallback() {
-
-    }
-
-    addtocart() {
+    addtocart(buyfuc) {
         Animated.timing(
             this.state.modelmargin,//初始值
             {toValue: 0.9}//结束值
         ).start();//开始
-        this.refs.modal.open()
-
-    }
-
-
-    onSelect(index, value) {
+        this.refs.modal.open();
         this.setState({
-            select: index,
+            isnowbuy: buyfuc
         })
-        alert(index);
     }
+
 
     closebtn() {
         this.refs.modal.close();
@@ -160,7 +172,7 @@ export default class Goods extends Component {
     }
 
     decreasenum() {
-        if (this.state.num > 0) {
+        if (this.state.num > 1) {
             this.setState({
                 num: this.state.num - 1
             })
@@ -178,6 +190,12 @@ export default class Goods extends Component {
         })
 
     }
+    getselectattr(att)
+    {
+        this.setState({
+            selectgoodsattr:att
+        })
+    }
 
 
     addnum() {
@@ -192,14 +210,82 @@ export default class Goods extends Component {
             showViewer: false
         })
     }
-    attrlist(id)
-    {
-        var att=this.state.goods.attrlist
-        for (var Key in att){
-            alert(Key+"------"+att[Key].id);
+
+    attrlist() {
+        if (this.state.isnowbuy) {
+
+            this.props.navigator.push({
+                component: order,
+                args: {}
+            })
+        } else {
+
+            //加入购物车
+            this.setState({
+                showmask: true
+            })
+            cartlist.splice(0,cartlist.length);
+            AsyncStorage.getItem("cartlist").then((data) => {
+                if (data) {
+                    var list= JSON.parse(data);
+                    for(var key in list)
+                    {
+                        cartlist.push(list[key]);
+                    }
+
+                }
+                var key = 0
+                var ishave = false;
+                cartlist.map((item,i)=>
+                {
+                    if(cartlist[i].goods.type==1){
+                        if (cartlist[i].id == this.state.goods.id) {
+
+                            ishave = true;
+                            key = i;
+                        }
+                    }else{
+                        if(cartlist[i].attr.id == this.state.selectgoodsattr.id) {
+                            if (cartlist[i].id == this.state.goods.id) {
+
+                                ishave = true;
+                                key = i;
+                            }
+                        }
+
+                    }
+
+                })
+                if (ishave) {
+                    cartlist[key].num += this.state.num;
+                    cartlist[key].total=cartlist[key].price*cartlist[key].num
+                } else {
+                    var price=this.state.goods.type==1?this.state.goods.prices:this.state.selectgoodsattr.price;
+                    var total=price*this.state.num;
+                    cartlist.push({id: this.state.goods.id,total:total,price:price,attr:this.state.selectgoodsattr, goods: this.state.goods,selected:true, num: this.state.num})
+                }
+                AsyncStorage.setItem("cartlist",JSON.stringify(cartlist));
+
+                this.setState({
+                    showmask: false,
+                    showok: true
+                })
+                this.closebtn();
+                setTimeout(() => {
+                    this.setState({
+                        showok: false
+                    })
+                }, 1000);
+
+            })
+
+
+
+
         }
 
     }
+
     thumbPressHandle(i) {
 
         this.setState({
@@ -269,13 +355,13 @@ export default class Goods extends Component {
                                       style={{textAlign: 'center'}}/>
                             </View>
                         </View>
-                        <TouchableOpacity onPress={this.addtocart.bind(this)}
+                        <TouchableOpacity onPress={this.addtocart.bind(this, true)}
                                           style={{flex: 1, height: px2dp(40), justifyContent: "center"}}>
                             <Text style={{textAlign: 'center', color: "#e83e41"}}>
                                 立即购买
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={{flex: 1}} onPress={this.addtocart.bind(this)}>
+                        <TouchableOpacity style={{flex: 1}} onPress={this.addtocart.bind(this, false)}>
                             <View style={{
                                 flex: 1,
                                 backgroundColor: "#e83e41",
@@ -298,114 +384,18 @@ export default class Goods extends Component {
                         borderTopLeftRadius: px2dp(8),
                         borderTopRightRadius: px2dp(8)
                     }}>
-
+                        <RenderGoodsAttr data={this.props.data.attrlist} selectatt={this.getselectattr.bind(this)}/>
                         <View style={{
-                            flexDirection: 'row',
-                            borderBottomWidth: px2dp(1),
-                            borderBottomColor: '#cccccc',
-                            height: px2dp(70),
-
-                            paddingLeft: px2dp(10),
-                            paddingRight: px2dp(10),
+                            flex: 1, backgroundColor: "#ffffff", paddingBottom: px2dp(30), borderTopWidth: 1,
+                            borderTopColor: "#cccccc"
                         }}>
-                            <View style={{width: px2dp(80)}}/>
-                            <View style={{padding: px2dp(5)}}>
-                                <View>
-                                    <Text style={{color: "#e83e41", fontSize: px2dp(16)}}>
-                                        <Text style={{fontSize: px2dp(12)}}>
-                                            ￥
-                                        </Text>
-                                        499.00
-                                    </Text>
-                                </View>
-                                <View style={{marginTop: px2dp(5)}}>
-                                    <Text style={{fontSize: px2dp(12)}}>
-                                        己选：标配+32G内存+不要钱
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                        <ScrollView
-                                style={{backgroundColor:"#ffffff", paddingBottom:px2dp(10)}}
-                        >
-                        <View style={{
-                            borderBottomWidth: 1,
-                            borderBottomColor: '#cccccc',
-                            paddingTop: px2dp(5), paddingBottom: px2dp(5),
-                            backgroundColor: "#ffffff",
-
-                            paddingLeft: px2dp(10),
-                            paddingRight: px2dp(10),
-
-
-                        }}>
-                            <View style={{paddingTop: px2dp(5), paddingBottom: px2dp(5)}}>
-
-
-
-                                <View>
-
-                                    <View style={styles.attlistview}>
-                                        <View style={{width:40}}>
-                                            <Text>
-                                                配置:
-                                            </Text>
-                                        </View>
-                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                        </View>
-
-                                    </View>
-                                    <View style={styles.attlistview}>
-                                        <View style={{width:40}}>
-                                            <Text>
-                                                配置:
-                                            </Text>
-                                        </View>
-                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                            <Text style={styles.attlist}>11111111111</Text>
-                                        </View>
-
-                                    </View>
-
-                                    <View style={styles.attlistview}>
-                                        <View style={{width:40}}>
-                                        <Text>
-                                            配置:
-                                        </Text>
-                                        </View>
-                                        <View style={{flexDirection:'row',flex:1, flexWrap:'wrap'}}>
-                                        <Text style={styles.attlist}>11111111111</Text>
-                                        <Text style={styles.attlist}>11111111111</Text>
-                                        <Text style={styles.attlist}>11111111111</Text>
-                                        <Text style={styles.attlist}>11111111111</Text>
-                                        <Text style={styles.attlist}>11111111111</Text>
-                                        </View>
-
-                                    </View>
-                                </View>
-
-
-
-                            </View>
-
-                        </View>
-                        <View style={{flex: 1, backgroundColor: "#ffffff",marginBottom:px2dp(10)}}>
 
                             <View style={{
                                 height: px2dp(40),
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-
+                                backgroundColor: "#ffffff",
                                 paddingLeft: px2dp(10),
                                 paddingRight: px2dp(10),
 
@@ -455,8 +445,6 @@ export default class Goods extends Component {
 
                             </View>
                         </View>
-                        </ScrollView>
-
 
 
                         <TouchableOpacity style={{
@@ -467,7 +455,7 @@ export default class Goods extends Component {
                         </TouchableOpacity>
 
                     </View>
-                    <Image source={{uri: set.baseurl + '/data/upload/'+this.state.goods.thumb}}
+                    <Image source={{uri: set.baseurl + '/data/upload/' + this.state.goods.thumb}}
                            style={{
                                width: px2dp(80), height: px2dp(80), borderRadius: px2dp(10),
                                position: "absolute", top: 0, left: px2dp(15)
@@ -490,30 +478,67 @@ export default class Goods extends Component {
                     index={this.state.showIndex}
                     pressHandle={this.viewerPressHandle}
                     imgList={this.state.imgList}/>}
+                {this.state.showmask &&
+                <View style={{
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    justifyContent: 'center',
+                    alignItems: "center",
+                }}>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: "center", height: px2dp(100), width: px2dp(100), borderRadius: px2dp(10),
+                        backgroundColor: "rgba(0,0,0,0.5)"
+                    }}>
+                        <ActivityIndicator style={{flex: 2}}/>
+                        <Text style={{color: "#ffffff", flex: 1, fontSize: px2dp(12)}}>加载中...</Text>
+                    </View>
+                </View>
+                }
+                {this.state.showok &&
+
+                <View style={{
+                    position: "absolute",
+                    top: height / 2 - px2dp(50),
+                    left: width / 2 - px2dp(50),
+                    justifyContent: 'center',
+                    alignItems: "center", height: px2dp(100), width: px2dp(100), borderRadius: px2dp(10),
+                    backgroundColor: "rgba(0,0,0,0.5)"
+                }}>
+                    <View style={{flex: 2, justifyContent: "center", alignItems: "center"}}>
+                        <Icon name="ios-checkmark" size={px2dp(70)} color="#00FF00"/>
+                    </View>
+                    <Text style={{color: "#ffffff", flex: 1, fontSize: px2dp(12)}}>加入成功</Text>
+                </View>
+
+                }
 
             </View>
         )
     }
 }
 const styles = StyleSheet.create({
-    attlistactive:{
-        borderColor:"#ea3524", borderWidth:1, paddingHorizontal:px2dp(5),
-        paddingVertical:px2dp(3), borderRadius:px2dp(5), margin:px2dp(5),
-        color:"#ea3524"
+    attlistactive: {
+        borderColor: "#ea3524", borderWidth: 1, paddingHorizontal: px2dp(5),
+        paddingVertical: px2dp(3), borderRadius: px2dp(5), margin: px2dp(5),
+        color: "#ea3524"
 
     },
-    attlist:{
-        borderColor:"#cccccc", borderWidth:1, paddingHorizontal:px2dp(5),
-        paddingVertical:px2dp(3), borderRadius:px2dp(5), margin:px2dp(5)
+    attlist: {
+        borderColor: "#cccccc", borderWidth: 1, paddingHorizontal: px2dp(5),
+        paddingVertical: px2dp(3), borderRadius: px2dp(5), margin: px2dp(5)
 
     },
-    attlistview:{
-        flexDirection:'row',
-        alignItems:"center",
-        flexWrap:"wrap",
-        paddingBottom:px2dp(3),
-        borderBottomColor:"#cccccc",
-        borderBottomWidth:1
+    attlistview: {
+        flexDirection: 'row',
+        alignItems: "center",
+        flexWrap: "wrap",
+        paddingVertical: px2dp(5),
+        borderBottomColor: "#cccccc",
+        borderBottomWidth: 1
     },
     wrapper: {
         top: 0,

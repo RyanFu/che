@@ -61,13 +61,14 @@ export default class test extends Component {
             this.setState({
                 isLoadingTail: true
             });
-            if(cacheResults.page>0 && cacheResults.items.length==cacheResults.total)
+            if(cacheResults.page>0 && cacheResults.items.length==cacheResults.total || cacheResults.total < 5)
             {
               this.setState({
                   hasmore:false
               })
 
             }
+
 
             var databody = {
                 page: cacheResults.page
