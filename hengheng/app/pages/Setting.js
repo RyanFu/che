@@ -46,6 +46,7 @@ export default class Setting extends UserBackPage {
       });
     setTimeout(()=>{
         AsyncStorage.removeItem("token",()=>{
+            AsyncStorage.removeItem("userinfo");
             DeviceEventEmitter.emit('outlogin','');
             this.props.navigator.pop()
             Toast.hide(this.toast);

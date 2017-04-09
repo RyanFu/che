@@ -13,6 +13,7 @@ import {
     Platform,
     Image,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     ListView,
     BackAndroid,
     PixelRatio,
@@ -28,13 +29,19 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import set from '../config/config'
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import orderSub from './ordersub'
+import login from './Login'
+let {width, height} = Dimensions.get('window')
 let carlist=[]
+let sum=0
+let checknum=0;
 export default class cart extends Component {
     constructor(props) {
         super(props);
         this.state = {
             token: '',
             isRefreshing:false,
+            allcheck:false,
+            showlogin:false,
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 != row2,
             }),
@@ -45,8 +52,17 @@ export default class cart extends Component {
         this._onRefresh()
     }
 
-    decreasenum() {
-        if (this.state.num > 0) {
+    decreasenum(data) {
+        if (data.num > 1) {
+            carlist.map((item,i)=>{
+                if(item.id==data.id&&item.attr.id == data.attr.id)
+                {
+                    carlist[i].num=carlist[i].num-1;
+                    carlist[i].total=carlist[i].num*carlist[i].price
+                }
+            })
+            AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+            this._fetchdata();
 
         }
     }
@@ -60,54 +76,141 @@ export default class cart extends Component {
 
 
         if(!this.state.isRefreshing){
-            carlist.splice(0,carlist.length);
             this.setState({
                 isRefreshing:true
             })
-            AsyncStorage.getItem("cartlist").then((data)=>{
-
-                if(data)
-                {
-
-                    var temdata=JSON.parse(data);
-                    for(var key in temdata)
-                    {
-                        carlist.push(temdata[key]);
-                    }
-
-
-                }
-                this.setState({
-                    dataSource:this.state.dataSource.cloneWithRows(carlist),
-                    isRefreshing:false
-                })
-
-            }).catch((err)=>{alert(err)
-                this.setState({
-                    isRefreshing:false
-                })
-            });
-
+            this._fetchdata()
 
         }
 
 
     }
+    _fetchdata()
+    {
+        carlist.splice(0,carlist.length);
+        AsyncStorage.getItem("cartlist").then((data)=>{
+            var isall=true;
+            if(data)
+            {
+                var temdata=JSON.parse(data);
+                sum=0;
+                checknum=0;
+                for(var key in temdata)
+                {
+                    carlist.push(temdata[key]);
+                    if(temdata[key].selected)
+                    {
+                        sum+=temdata[key].total
+                        checknum++;
+                    }else{
+                        isall=false
+                    }
+                }
+            }
+            this.setState({
+                dataSource:this.state.dataSource.cloneWithRows(carlist.slice(0)),
+                isRefreshing:false,
+                allcheck:isall
+            })
 
-    addnum() {
-
+        }).catch((err)=>{alert(err)
+            this.setState({
+                isRefreshing:false
+            })
+        });
+    }
+    addnum(data) {
+        carlist.map((item,i)=>{
+            if(item.id==data.id&&item.attr.id == data.attr.id)
+            {
+                carlist[i].num=carlist[i].num+1;
+                carlist[i].total=carlist[i].num*carlist[i].price
+            }
+        })
+        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        this._fetchdata();
     }
     delgoods(data)
     {
-        alert("a");
+        var newlist=[];
+        carlist.map((item,i)=>{
+            if(item.id!=data.id&&item.attr.id != data.attr.id)
+            {
+                newlist.push(item)
+            }
+        })
+        carlist=newlist;
+        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        this._fetchdata();
+
+    }
+    checkgoods(data)
+    {
+        carlist.map((item,i)=>{
+            if(item.id==data.id&&item.attr.id == data.attr.id)
+            {
+                carlist[i].selected=carlist[i].selected?false:true
+            }
+        })
+        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        this._fetchdata();
+
+    }
+    checkall()
+    {
+        carlist.map((item,i)=>{
+            carlist[i].selected=!this.state.allcheck
+        })
+        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        this._fetchdata();
+
     }
     ordersub()
     {
-        console.log(carlist)
-        return
-        this.props.navigator.push({
-            component:orderSub
-        })
+        AsyncStorage.getItem("userinfo").then((userdata)=>{
+            if(userdata)
+            {
+                var data=[];
+                carlist.map((item,i)=>{
+                    if(item.selected)
+                    {
+                        data.push(item)
+                    }
+                })
+                this.props.navigator.push({
+                    component:orderSub,
+                    args:{
+                        list:data,
+                        sum:sum,
+                        num:checknum,
+                        user:JSON.parse(userdata)
+                    }
+                })
+
+
+            }else{
+                this.setState({
+                    showlogin:true
+                })
+                setTimeout(()=>{
+                    this.setState({
+                        showlogin:false
+                    })
+                    this.props.navigator.push({
+                        component:login,
+
+                    })
+
+                },800)
+
+
+
+            }
+
+
+
+
+        });
 
     }
 
@@ -158,12 +261,27 @@ export default class cart extends Component {
                                     padding: px2dp(10),
                                     backgroundColor: "#fafafa"
                                 }}>
-                                    <View style={{flex: 1}}>
+                                    <TouchableWithoutFeedback onPress={this.checkgoods.bind(this,data)}>
+                                    <View style={{height:px2dp(120), width:px2dp(30),justifyContent: 'center',
+                                        alignItems: 'center',}}>
+                                    <View  style={{
+                                        borderWidth: 1,
+                                        borderColor: "#cccccc",
+                                        borderRadius: px2dp(11),
+                                        height: px2dp(22),
+                                        width: px2dp(22),
+                                        justifyContent:"center",
+                                        alignItems:"center",
+                                    }}>
 
-                                        <Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>
+                                        {data.selected&&<Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
+
 
                                     </View>
-                                    <View style={{flex: 3}}>
+                                    </View>
+                                    </TouchableWithoutFeedback>
+
+                                    <View style={{width: px2dp(100), padding:px2dp(5)}}>
                                         <Image
                                             source={{uri: set.baseurl + 'data/upload/'+data.goods.thumb}}
                                             style={{width: px2dp(90), height: px2dp(90)}}/>
@@ -190,7 +308,7 @@ export default class cart extends Component {
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center"
-                                                }} onPress={this.decreasenum.bind(this)}>
+                                                }} onPress={this.decreasenum.bind(this,data)}>
                                                     <Text style={{
                                                         fontSize: px2dp(16),
                                                     }}>
@@ -222,7 +340,7 @@ export default class cart extends Component {
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center"
-                                                }} onPress={this.addnum.bind(this)}>
+                                                }} onPress={this.addnum.bind(this,data)}>
                                                     <Text style={{
                                                         fontSize: px2dp(16),
                                                     }}>
@@ -254,29 +372,57 @@ export default class cart extends Component {
                     alignItems: 'center'
                 }}>
                     <View style={{flexDirection: "row", alignItems: 'center',flex:1}}>
-                        <View style={{
-                            borderWidth: 1,
-                            borderColor: "#cccccc",
-                            borderRadius: px2dp(10),
-                            height: px2dp(20),
-                            width: px2dp(20),
-                            marginLeft: px2dp(10),
-                            marginRight: px2dp(5)
-                        }}>
-                        </View>
+                        <TouchableWithoutFeedback onPress={this.checkall.bind(this)}>
+                            <View style={{height:px2dp(40), width:px2dp(30),justifyContent: 'center',
+                                alignItems: 'center',}}>
+                                <View  style={{
+                                    borderWidth: 1,
+                                    borderColor: "#cccccc",
+                                    borderRadius: px2dp(11),
+                                    height: px2dp(22),
+                                    width: px2dp(22),
+                                    justifyContent:"center",
+                                    alignItems:"center",
+                                }}>
+
+                                    {this.state.allcheck&&<Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
+
+
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
                         <Text>全选</Text>
                     </View>
                     <View style={{flexDirection: "row",flex:2, alignItems: 'center',justifyContent:'flex-start'}}>
 
                         <Text style={{fontSize:px2dp(12)}}>合计：</Text>
-                        <Text style={{fontSize:px2dp(11), color:"#e83e41"}}>￥<Text style={{fontSize:px2dp(14)}}>1000.00</Text></Text>
+                        <Text style={{fontSize:px2dp(11), color:"#e83e41"}}>￥<Text style={{fontSize:px2dp(14)}}>{sum}</Text></Text>
                     </View>
-                    <TouchableOpacity onPress={this.ordersub.bind(this)} style={{flex:1,backgroundColor:"#e83e41",height:px2dp(40),justifyContent:"center",alignItems:'center'}}>
-                    <Text style={{color:'#ffffff'}}>结算(0)</Text>
-                    </TouchableOpacity>
+                    {checknum==0?
+                    <View style={{flex:1,backgroundColor:"#cccccc",height:px2dp(40),justifyContent:"center",alignItems:'center'}}>
+                    <Text style={{color:'#ffffff'}}>结算（{checknum}）</Text>
+                    </View>:<TouchableOpacity onPress={this.ordersub.bind(this)} style={{flex:1,backgroundColor:"#e83e41",height:px2dp(40),justifyContent:"center",alignItems:'center'}}>
+                        <Text style={{color:'#ffffff'}}>结算（{checknum}）</Text>
+                        </TouchableOpacity>}
 
                 </View>
+                {this.state.showlogin &&
 
+                <View style={{
+                    position: "absolute",
+                    top: height / 2 - px2dp(50),
+                    left: width / 2 - px2dp(50),
+                    justifyContent: 'center',
+                    alignItems: "center", height: px2dp(100), width: px2dp(100), borderRadius: px2dp(10),
+                    backgroundColor: "rgba(0,0,0,0.5)"
+                }}>
+                    <View style={{flex: 2, justifyContent: "center", alignItems: "center"}}>
+                        <Icon name="ios-close-circle-outline" size={px2dp(50)} color="#ea3524"/>
+                    </View>
+                    <Text style={{color: "#ffffff", flex: 1, fontSize: px2dp(12)}}>请登陆</Text>
+                </View>
+
+                }
             </View>
 
         );

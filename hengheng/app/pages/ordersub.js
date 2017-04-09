@@ -18,6 +18,7 @@ import {
     BackAndroid,
     DeviceEventEmitter,
     TouchableOpacity,
+    InteractionManager,
     TextInput,
     Switch,
 
@@ -39,12 +40,14 @@ export default class ordersub extends Component {
             nickname: '',
             device_token: '',
             userinfo: null,
+            usemoney:true
 
         }
         this.handleBack = this._handleBack.bind(this);
     }
 
     componentDidMount() {
+
         BackAndroid.addEventListener('hardwareBackPress', this.handleBack);
     }
 
@@ -60,6 +63,52 @@ export default class ordersub extends Component {
         }
         return false;
     }
+    _rendergoods()
+    {
+        var data=[];
+        this.props.list.map((item,i)=>{
+            data.push(<View key={i} style={{
+                    flexDirection: 'row',
+                    height: px2dp(120),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: px2dp(10),
+                    backgroundColor: "#ffffff", marginTop: px2dp(5), marginBottom: px2dp(5)
+                }}>
+                    <View style={{flex: 2}}>
+                        <Image
+                            source={{uri: set.baseurl + 'data/upload/'+item.goods.thumb}}
+                            style={{width: px2dp(90), height: px2dp(90)}}/>
+                    </View>
+                    <View style={{flex: 5}}>
+                        <Text numberOfLines={2} style={{fontSize: px2dp(12), flex: 1}}>【{item.goods.class_name}】{item.goods.name} {item.attr.f_name}</Text>
+                        <Text numberOfLines={2}
+                              style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>{item.goods.title}</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            flex: 1,
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <Text style={{fontSize: px2dp(11), color: "#e83e41"}}>￥<Text
+                                style={{fontSize: px2dp(12)}}>{item.price}</Text></Text>
+                            <Text style={{
+                                fontSize: px2dp(12),
+                                color: "#bcbcbc",
+                                marginLeft: px2dp(5)
+                            }}>￥{item.total}</Text>
+                            <Text style={{fontSize: px2dp(11), color: "#333333",}}>x<Text
+                                style={{fontSize: px2dp(12)}}>{item.num}</Text></Text>
+
+                        </View>
+                    </View>
+                </View>
+            )
+
+
+        })
+        return data
+    }
 
     render() {
         return (
@@ -74,50 +123,16 @@ export default class ordersub extends Component {
                         height: px2dp(30), flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center',
                         paddingLeft: px2dp(10), backgroundColor: '#ffffff'
                     }}>
-                        <Text>哼哼商城</Text>
+                        <Text>商品列表({this.props.num})</Text>
 
                     </View>
-                    <View style={{
-                        flexDirection: 'row',
-                        height: px2dp(120),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: px2dp(10),
-                        backgroundColor: "#ffffff", marginTop: px2dp(5), marginBottom: px2dp(5)
-                    }}>
-                        <View style={{flex: 2}}>
-                            <Image
-                                source={{uri: set.baseurl + 'data/upload/avatar/15_thumb_1488773131.jpg'}}
-                                style={{width: px2dp(90), height: px2dp(90)}}/>
-                        </View>
-                        <View style={{flex: 5}}>
-                            <Text numberOfLines={2} style={{fontSize: px2dp(12), flex: 1}}>外星人准系统X991 桌面级CPU
-                                I7 7700K
-                                有钱人必备神器有钱人必备神器有钱人必备神器</Text>
-                            <Text numberOfLines={2}
-                                  style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>外星人准系统X991
-                                桌面级CPU，I7 7700K
-                                有钱人必备神器</Text>
-                            <View style={{
-                                flexDirection: 'row',
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}>
-                                <Text style={{fontSize: px2dp(11), color: "#e83e41"}}>￥<Text
-                                    style={{fontSize: px2dp(12)}}>599.00</Text></Text>
-                                <Text style={{
-                                    fontSize: px2dp(12),
-                                    textDecorationLine: "line-through",
-                                    color: "#bcbcbc",
-                                    marginLeft: px2dp(5)
-                                }}>￥2109.00</Text>
-                                <Text style={{fontSize: px2dp(11), color: "#333333",}}>x<Text
-                                    style={{fontSize: px2dp(12)}}>5</Text></Text>
+                    <ScrollView style={{height:px2dp(220)}}
+                    showsHorizontalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
+                    >
+                        {this._rendergoods()}
 
-                            </View>
-                        </View>
-                    </View>
+                    </ScrollView>
                     <View style={{
                         height: px2dp(40),
                         backgroundColor: '#ffffff',
@@ -171,15 +186,14 @@ export default class ordersub extends Component {
                             marginRight: px2dp(10),
 
                         }}>
-                            <Text numberOfLines={1} style={{color: "#cccccc", fontSize: px2dp(12)}}>5000.00元</Text>
+                            <Text numberOfLines={1} style={{color: "#cccccc", fontSize: px2dp(12)}}>{this.props.user.money}元</Text>
 
 
                         </View>
                         <View style={{flex: 4, alignItems: 'flex-end'}}>
                             <Switch
-
-
-                            />
+                                onValueChange={(value) => this.setState({usemoney: value})}
+                                value={this.state.usemoney} />
                         </View>
                     </View>
                     <View style={{
@@ -240,7 +254,7 @@ export default class ordersub extends Component {
                     <View
                         style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingRight: px2dp(5)}}><Text>合计：<Text
                         style={{fontSize: px2dp(11), color: '#e83e41'}}>￥</Text><Text
-                        style={{color: "#e83e41"}}>2598.00</Text></Text></View>
+                        style={{color: "#e83e41"}}>{this.props.sum}</Text></Text></View>
                     <TouchableOpacity style={{
                         flex: 1,
                         height: px2dp(40),
