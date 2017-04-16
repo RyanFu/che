@@ -308,12 +308,14 @@ export default class ordersub extends Component {
         let databody = {
             goods: JSON.stringify(this.props.list),
             coupon: JSON.stringify(this.state.coupon),
-            balance: this.state.usemoney,
+            balance: this.state.usermoneysum,
             token: this.state.token,
+            pay:this.state.pay,
             device_token: this.state.device_token
         }
         request.post(set.baseurl + set.mall.checkorder, databody).then((data) => {
-            alert(data.status);
+                alert(data.status+"---"+data.message);
+
 
 
             this.setState({
