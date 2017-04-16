@@ -400,9 +400,14 @@ class PublicController extends Controller
     {
         $id = $_GET['id'];
         $info = M('goods')->where(['id' => $id])->find();
+        if($info.type==1)
+        {
+            $info['attr']['id']=-1;
+        }
         json_return(0, "", $info);
 
     }
+
 
 }
 

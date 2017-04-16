@@ -20,6 +20,11 @@ let set={
         getgoodslist:'index.php?g=app&m=public&a=getgoodslist',
         getgoodsinfo:'index.php?g=app&m=public&a=getgoodsinfo',
     },
+    mall:{
+        getordersubinfo:'index.php?g=app&m=mall&a=getordersubinfo',
+        checkorder:'index.php?g=app&m=mall&a=checkorder',
+        usercoupon:'index.php?g=app&m=mall&a=usercoupon',
+    }
 
 }
 export default set

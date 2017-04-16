@@ -109,13 +109,13 @@ export default class My extends Component {
         this.subscription = DeviceEventEmitter.addListener('changeAvatar',(data)=>{
             this._onRefresh();
         });
-        this.changename = DeviceEventEmitter.addListener('changenickname',(data)=>{
+        this.changenickname = DeviceEventEmitter.addListener('changenickname',(data)=>{
             this._onRefresh();
         });
-        this.changename = DeviceEventEmitter.addListener('login',(data)=>{
+        this.login = DeviceEventEmitter.addListener('login',(data)=>{
             this._onRefresh();
         });
-        this.changename = DeviceEventEmitter.addListener('outlogin',(data)=>{
+        this.outlogin = DeviceEventEmitter.addListener('outlogin',(data)=>{
             this._onRefresh();
         });
 
@@ -136,7 +136,9 @@ export default class My extends Component {
 
     componentWillUnmount(){
         this.subscription.remove();
-        this.changename.remove();
+        this.changenickname.remove();
+        this.login.remove();
+        this.outlogin.remove();
     };
     _onRefresh() {
         AsyncStorage.getItem("token")

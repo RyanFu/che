@@ -386,8 +386,8 @@ export default class Goods extends Component {
                     }}>
                         <RenderGoodsAttr data={this.props.data.attrlist} selectatt={this.getselectattr.bind(this)}/>
                         <View style={{
-                            flex: 1, backgroundColor: "#ffffff", paddingBottom: px2dp(30), borderTopWidth: 1,
-                            borderTopColor: "#cccccc"
+                            flex: 1, backgroundColor: "#ffffff", paddingBottom: px2dp(40), borderTopWidth: 1,
+                            borderTopColor: "#cccccc", justifyContent: "flex-start",height:px2dp(70)
                         }}>
 
                             <View style={{
@@ -396,8 +396,7 @@ export default class Goods extends Component {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 backgroundColor: "#ffffff",
-                                paddingLeft: px2dp(10),
-                                paddingRight: px2dp(10),
+                                paddingHorizontal:px2dp(10)
 
                             }}>
 

@@ -16,6 +16,8 @@ class CheckBaseController extends Controller
         ($_REQUEST['token'] && $_REQUEST['device_token']) or json_return(99,"请重新登陆");
         $this->memberinfo=M("users")->where(['token'=>$_REQUEST['token']])->find();
         $this->memberinfo or json_return(99,"请重新登陆");
+        $this->memberinfo['user_status'] or json_return(98,"账号状态异常");
+
         ($this->memberinfo['device_token'] == $_REQUEST['device_token']) or json_return(98,"您的账户己在其它设备上登陆，请重新登陆");
         
     }
