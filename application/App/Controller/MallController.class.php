@@ -19,6 +19,50 @@ class MallController extends CheckBaseController
     {
 
     }
+    function buildorder()
+    {
+
+        $goodslist=json_decode($_POST['list'],true);
+        $total=0;
+        foreach ($goodslist as $key => $val) {
+            $goodsinfo =M("goods")->where(['id'=>$val['id']])->find();
+            $goodsinfo['status'] or json_return(1, "商品" . $val["goods"]["name"] . "己下架", ["type" => $val['goods']['type'], 'id' => $val['id']]);
+            if ($val['goods']['type'] == 1) {
+                $goodsinfo['stock'] >= $val['num'] or json_return(2, "商品" . $val["goods"]["name"] . "库存不足", ["type" => $val['goods']['type'], 'id' => $val['id']]);
+                $editarr[] = ["type" => $val['goods']['type'], 'id' => $val['id'], "num" => $val['num'], "price" => $goodsinfo["price"]];
+                $total += $val['num'] * $goodsinfo["price"];
+            } else {
+                $attrinfo = M("goods_attr")->where(['id' => $val['attr']['id']])->find();
+                $attrinfo['stock'] >= $val['num'] or json_return(3, "商品" . $val["goods"]["name"] . "库存不足", ["type" => $val['goods']['type'], 'id' => $val['id']]);
+                $editarr[] = ["type" => $val['goods']['type'], 'id' => $val['id'], "num" => $val['num'], "price" => $attrinfo["price"]];
+                $total += $val['num'] * $attrinfo["price"];
+            }
+        }
+
+        $order_sn = $this->build_order_no();
+        $order = array(
+            "order_sn" => $order_sn,
+            "pay_status"=>0,
+            "order_status"=>0,
+            "uid"=>$this->memberinfo['id'],
+            "mount"=>$total,
+            "balance"=>0,
+            "coupon"=>0,
+            "pay"=>0,
+            "add_time"=>date("Y-m-d H:i:s")
+        );
+        $order_id = M("order")->add($order);
+        $order_goods=[];
+        foreach ($goodslist as  $valb) {
+            $order_goods[]=['order_id'=>$order_id,"goods_id"=>$valb['id'],'attr_id'=>$valb['attr']['id'],'num'=>$valb['num'],'price'=>$valb['price'],'total'=>$valb['total']];
+        }
+        M("order_goods")->addAll($order_goods);
+
+
+        json_return(0,"",['order_id'=>$order_id,"order_sn"=>$order_sn]);
+
+
+    }
 
     //检测订单
     public function checkorder()
@@ -28,7 +72,6 @@ class MallController extends CheckBaseController
         $editarr = [];
         $total = 0;
         $order_coupon = 0;
-        file_put_contents("a.log", print_r($goodslist, true));
         foreach ($goodslist as $key => $val) {
             $goodsinfo = M("goods")->where(['id' => $val['id']])->find();
             $goodsinfo['status'] or json_return(1, "商品" . $val["goods"]["name"] . "己下架", ["type" => $val['goods']['type'], 'id' => $val['id']]);
@@ -48,9 +91,9 @@ class MallController extends CheckBaseController
                 foreach ($val['couponlist'] as $cv) {
                     //检测此劵有效性
                     $sql = "select c.*,uc.name,uc.desc,uc.thumb,uc.type,uc.details,uc.worth,uc.class_list," .
-                        "uc.goods_list,uc.manjian from hh_user_coupon as c left join hh_conpon as uc" .
-                        "on c.coupon_id=uc.id where c.id =" . $cv['id'];
-                    $thecoupon = M()->query($sql);
+                        "uc.goods_list,uc.manjian from hh_user_coupon as c left join hh_conpon as uc " .
+                        "on c.coupon_id=uc.id where c.id =" . $cv['id']. " limit 1";
+                    $thecoupon = M()->query($sql)[0];
                     $thecoupon or json_return(4, "优惠劵" . $cv["name"] . "己失效", ["type" => $val['goods']['type'], 'id' => $cv['id']]);
                     $thecoupon['status'] and json_return(4, "优惠劵" . $cv["name"] . "己失效", ["type" => $val['goods']['type'], 'id' => $cv['id']]);
                     //检测劵所属用户
@@ -62,11 +105,11 @@ class MallController extends CheckBaseController
                     $isok = !$thecoupon['goods_list'] && !$thecoupon['class_list'];
                     if (!$isok && $thecoupon['goods_list']) {
                         $coupongoods = explode(',', thecoupon['goods_list']);
-                        in_array($val['id'], $coupongoods) and $isok = true;
+                        in_array($val['goods']['id'], $coupongoods) and $isok = true;
                     }
                     if (!$isok && $thecoupon['class_list']) {
-                        $couponclass = explode(',', thecoupon['class_list']);
-                        in_array($val['classify'], $couponclass) and $isok = true;
+                        $couponclass = explode(',', $thecoupon['class_list']);
+                        in_array($val['goods']['classify'], $couponclass) and $isok = true;
                     }
                     $isok or json_return(5, "优惠劵" . $cv["name"] . "不能使用于商品 " . $val['goods']['name'], ["type" => $val['goods']['type'], 'id' => $cv['id']]);
                     //处理满减劵
@@ -74,7 +117,7 @@ class MallController extends CheckBaseController
                         $jian = unserialize($thecoupon['manjian'])[0]["jian"];
                         $man = unserialize($thecoupon['manjian'])[0]["man"];
                         //是否达到满减数额
-                        $val['total'] >= $man or json_return(6, "优惠劵" . $cv["name"] . "未达到满减金额 " . $val['goods']['name'], ["type" => $val['goods']['type'], 'id' => $cv['id']]);
+                        $val['total'] >= $man or json_return(6, "优惠劵" . $cv["name"] . "未达到满减金额 " . $val['goods']['name']." 的".$man."元", ["type" => $val['goods']['type'], 'id' => $cv['id']]);
                         $coupon_total += $jian;
                     } else {
                         //处理抵扣劵
@@ -83,24 +126,75 @@ class MallController extends CheckBaseController
                         $coupon_total += $thecoupon['worth'];
                     }
                 }
-                $coupon_total > $val['total'] or $coupon_total = $val['total'];
+                $coupon_total > $val['total'] and $coupon_total = $val['total'];
                 $order_coupon += $coupon_total;
             }
         }
         //余额有效性检测
         $this->memberinfo['money'] > $_POST["balance"] or json_return(7, "余额不足");
         //效验提交的需支付的金额
-        $pay=$total-$coupon_total-$_POST["balance"];
+        $pay=$total-$order_coupon-$_POST["balance"];
         $pay>=0&&$pay==$_POST['pay'] or json_return(8,"待付金额有误");
+        //更新订单支付信息。
+        M("order")->where(['id'=>$_POST['order_id']])->save(['mount'=>$total,'balance'=>$_POST["balance"],'coupon'=>$coupon_total,'pay'=>$pay]);
+
+        //添加优惠劵到订单商品
+        $order_goods=M("order_goods")->where(['order_id'=>$_POST['order_id']])->select();
+
+        foreach($order_goods as $k =>$v)
+        {
+            foreach ($goodslist as $gv)
+            {
+                if($gv['id']==$v['goods_id'] &&$gv['attr']['id']==$v['attr_id'] && $gv['choosenum']>0)
+                {
+                    //添加商品优惠劵使用
+                    M("order_goods")->where(['id'=>$v['id']])->save(['coupon'=>serialize($gv['couponlist'])]);
+                    //设置优惠劵失效
+                    foreach($gv['couponlist'] as $cvl)
+                    {
+                        M("user_coupon")->where(['id'=>$cvl['id']])->save(['status'=>1]);
+                    }
+                }
+            }
+        }
+        //不需要在线支付
+        if($pay==0)
+        {
+            //修改订单为己付款
+            M("order")->where(['id'=>$_POST['order_id']])->save(['pay_status'=>1]);
+            //将商品放入用户卡包
 
 
 
 
-        //生成商品订单和支付订单
-        $order_sn = $this->build_order_no();
-        $order = array(
-            "order_sn" => $order_sn,
-        );
+
+
+
+
+
+
+        }
+        //调整用户余额
+        if($_POST["balance"]>0 || $pay>0)
+        {
+            if($this->account(-$_POST["balance"],-$pay,"订单".$_POST['order_sn']."支付".($total-$order_coupon)."元"))
+            {
+                json_return(0);
+            }
+
+        }
+
+
+
+        //生成订单商品列表
+
+
+
+
+
+
+
+
 
 
         //返回需要支付的价格
@@ -211,7 +305,6 @@ class MallController extends CheckBaseController
     public function getordersubinfo()
     {
 
-
         //优惠卷
         $goods = json_decode($_POST['goods'], true);
         $coupon = $this->getusercoupon($goods);
@@ -221,6 +314,14 @@ class MallController extends CheckBaseController
         $pay = M("pay")->where(['status' => 1])->select();
         json_return(0, '', ['coupon' => $coupon, 'pay' => $pay, "coupon_length" => count($coupon)]);
 
+    }
+    //订单列表
+    public function getorderlist()
+    {
+        $condition['uid']=$this->memberinfo['id'];
+        intval($_POST['status'])>-1 && $condition['pay_status']=intval($_POST['status']);
+        $orderlist=M("order")->where($condition)->select();
+        json_return(0,"",$orderlist);
     }
 
 }

@@ -10,15 +10,21 @@ import {
     View,
     BackAndroid,
     ScrollView,
+    InteractionManager,
+    RefreshControl,
     Image
 } from 'react-native'
 import NavBar from '../component/NavBar'
 import set from '../config/config'
 import px2dp from '../util/index'
+import request from '../lib/request'
 export default class Order extends Component {
     constructor(props) {
         super(props)
         this.handleBack = this._handleBack.bind(this);
+        this.state={
+            isRefreshing:false,
+        }
     }
 
     _handleBack() {
@@ -36,8 +42,20 @@ export default class Order extends Component {
     }
 
     componentDidMount() {
-
+        InteractionManager.runAfterInteractions(()=>{
+            this._onRefresh();
+        })
         BackAndroid.addEventListener('hardwareBackPress', this.handleBack);
+    }
+    _onRefresh()
+    {
+        if(!this.state.isRefreshing)
+        {
+            this.setState({
+                isRefreshing:true
+            })
+        }
+
     }
 
     render() {
@@ -49,7 +67,16 @@ export default class Order extends Component {
                     leftPress={this.handleBack.bind(this)}
 
                 />
-                <ScrollView>
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.isRefreshing}
+                            onRefresh={this._onRefresh.bind(this)}
+                            tintColor="#ea3524"
+                            colors={['#ddd', '#e83e41']}
+                            progressBackgroundColor="#ffffff"
+                        />}
+                >
                     <View style={{paddingLeft: px2dp(5)}}>
                         <View style={{
                             flexDirection: 'row',

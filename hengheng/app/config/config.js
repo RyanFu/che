@@ -24,6 +24,8 @@ let set={
         getordersubinfo:'index.php?g=app&m=mall&a=getordersubinfo',
         checkorder:'index.php?g=app&m=mall&a=checkorder',
         usercoupon:'index.php?g=app&m=mall&a=usercoupon',
+        buildorder:'index.php?g=app&m=mall&a=buildorder',
+        getorderlist:'index.php?g=app&m=mall&a=getorderlist',
     }
 
 }

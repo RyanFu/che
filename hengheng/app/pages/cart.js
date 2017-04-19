@@ -29,19 +29,21 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import set from '../config/config'
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import orderSub from './ordersub'
+import Device from 'react-native-device-info';
 import login from './Login'
+import request from '../lib/request';
 let {width, height} = Dimensions.get('window')
-let carlist=[]
-let sum=0
-let checknum=0;
+let carlist = []
+let sum = 0
+let checknum = 0;
 export default class cart extends Component {
     constructor(props) {
         super(props);
         this.state = {
             token: '',
-            isRefreshing:false,
-            allcheck:false,
-            showlogin:false,
+            isRefreshing: false,
+            allcheck: false,
+            showlogin: false,
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 != row2,
             }),
@@ -51,167 +53,183 @@ export default class cart extends Component {
         AsyncStorage.removeItem("cartlist");
         this._onRefresh()
     }
-
     decreasenum(data) {
         if (data.num > 1) {
-            carlist.map((item,i)=>{
-                if(item.id==data.id&&item.attr.id == data.attr.id)
-                {
-                    carlist[i].num=carlist[i].num-1;
-                    carlist[i].total=carlist[i].num*carlist[i].price
+            carlist.map((item, i) => {
+                if (item.id == data.id && item.attr.id == data.attr.id) {
+                    carlist[i].num = carlist[i].num - 1;
+                    carlist[i].total = carlist[i].num * carlist[i].price
                 }
             })
-            AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+            AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
             this._fetchdata();
 
         }
     }
-
     componentDidMount() {
 
         InteractionManager.runAfterInteractions(this._onRefresh());
     }
-    _onRefresh()
-    {
-
-
-        if(!this.state.isRefreshing){
+    _onRefresh() {
+        if (!this.state.isRefreshing) {
             this.setState({
-                isRefreshing:true
+                isRefreshing: true
             })
             this._fetchdata()
 
         }
-
-
     }
-    _fetchdata()
-    {
-        carlist.splice(0,carlist.length);
-        AsyncStorage.getItem("cartlist").then((data)=>{
-            var isall=true;
-            if(data)
-            {
-                var temdata=JSON.parse(data);
-                sum=0;
-                checknum=0;
-                for(var key in temdata)
-                {
+    _fetchdata() {
+        carlist.splice(0, carlist.length);
+        AsyncStorage.getItem("cartlist").then((data) => {
+            var isall = true;
+            if (data) {
+                var temdata = JSON.parse(data);
+                sum = 0;
+                checknum = 0;
+                for (var key in temdata) {
                     carlist.push(temdata[key]);
-                    if(temdata[key].selected)
-                    {
-                        sum+=temdata[key].total
+                    if (temdata[key].selected) {
+                        sum += temdata[key].total
                         checknum++;
-                    }else{
-                        isall=false
+                    } else {
+                        isall = false
                     }
                 }
             }
             this.setState({
-                dataSource:this.state.dataSource.cloneWithRows(carlist.slice(0)),
-                isRefreshing:false,
-                allcheck:isall
+                dataSource: this.state.dataSource.cloneWithRows(carlist.slice(0)),
+                isRefreshing: false,
+                allcheck: isall
             })
 
-        }).catch((err)=>{alert(err)
+        }).catch((err) => {
+            alert(err)
             this.setState({
-                isRefreshing:false
+                isRefreshing: false
             })
         });
     }
     addnum(data) {
-        carlist.map((item,i)=>{
-            if(item.id==data.id&&item.attr.id == data.attr.id)
-            {
-                carlist[i].num=carlist[i].num+1;
-                carlist[i].total=carlist[i].num*carlist[i].price
+        carlist.map((item, i) => {
+            if (item.id == data.id && item.attr.id == data.attr.id) {
+                carlist[i].num = carlist[i].num + 1;
+                carlist[i].total = carlist[i].num * carlist[i].price
             }
         })
-        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
         this._fetchdata();
     }
-    delgoods(data)
-    {
-        var newlist=[];
-        carlist.map((item,i)=>{
-            if(item.id!=data.id&&item.attr.id != data.attr.id)
-            {
+    delgoods(data) {
+        var newlist = [];
+        carlist.map((item, i) => {
+            if (item.id != data.id && item.attr.id != data.attr.id) {
                 newlist.push(item)
             }
         })
-        carlist=newlist;
-        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        carlist = newlist;
+        AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
         this._fetchdata();
-
     }
-    checkgoods(data)
-    {
-        carlist.map((item,i)=>{
-            if(item.id==data.id&&item.attr.id == data.attr.id)
-            {
-                carlist[i].selected=carlist[i].selected?false:true
+    checkgoods(data) {
+        carlist.map((item, i) => {
+            if (item.id == data.id && item.attr.id == data.attr.id) {
+                carlist[i].selected = carlist[i].selected ? false : true
             }
         })
-        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
         this._fetchdata();
 
     }
-    checkall()
-    {
-        carlist.map((item,i)=>{
-            carlist[i].selected=!this.state.allcheck
+    checkall() {
+        carlist.map((item, i) => {
+            carlist[i].selected = !this.state.allcheck
         })
-        AsyncStorage.setItem("cartlist",JSON.stringify(carlist));
+        AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
         this._fetchdata();
-
     }
-    ordersub()
-    {
-        AsyncStorage.getItem("userinfo").then((userdata)=>{
-            if(userdata)
-            {
-                var data=[];
-                carlist.map((item,i)=>{
-                    if(item.selected)
-                    {
+
+    ordersub() {
+        AsyncStorage.getItem("token").then((userdata) => {
+            if (userdata) {
+                let token = JSON.parse(userdata);
+                var data = [];
+                carlist.map((item, i) => {
+                    if (item.selected) {
                         data.push(item)
                     }
                 })
-                this.props.navigator.push({
-                    component:orderSub,
-                    args:{
-                        list:data,
-                        sum:sum,
-                        num:checknum,
-                        user:JSON.parse(userdata)
+                //生成未付款订单
+                var databody = {
+                    list: JSON.stringify(data),
+                    sum: sum,
+                    num: checknum,
+                    token: token.token,
+                    device_token: Device.getUniqueID()
+                }
+                request.post(set.baseurl + set.mall.buildorder, databody).then((redata) => {
+                    if (parseInt(redata.status) == 99) {
+                        this.setState({
+                            showlogin: true
+                        })
+                        setTimeout(() => {
+                            this.setState({
+                                showlogin: false
+                            })
+                            this.props.navigator.push({
+                                component: login,
+
+                            })
+
+                        }, 800)
+                    } else if (parseInt(redata.status) == 0) {
+                        //删除购物车中己提交的商品
+                        var newlist = [];
+                        carlist.map((item, i) => {
+                            if (!item.selected) {
+                                newlist.push(item)
+                            }
+                        });
+                        carlist = newlist;
+                        AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
+                        this._fetchdata();
+                        AsyncStorage.getItem("userinfo").then((userdata) => {
+                            this.props.navigator.push({
+                                component: orderSub,
+                                args: {
+                                    list: data,
+                                    sum: databody.sum,
+                                    num: databody.num,
+                                    user: JSON.parse(userdata),
+                                    order_id:redata.data.order_id,
+                                    order_sn:redata.data.order_sn
+
+                                }
+                            })
+                        })
+
+                    } else {
+                        //存在无法购买的商品，进行删除
+
+
                     }
                 })
-
-
-            }else{
+            } else {
                 this.setState({
-                    showlogin:true
+                    showlogin: true
                 })
-                setTimeout(()=>{
+                setTimeout(() => {
                     this.setState({
-                        showlogin:false
+                        showlogin: false
                     })
                     this.props.navigator.push({
-                        component:login,
+                        component: login,
 
                     })
 
-                },800)
-
-
-
+                }, 800)
             }
-
-
-
-
         });
-
     }
 
     render() {
@@ -220,7 +238,6 @@ export default class cart extends Component {
                 text: 'Button'
             }
         ]
-
         return (
             <View style={styles.view}>
                 <View style={styles.topbar}>
@@ -230,7 +247,7 @@ export default class cart extends Component {
                         <Text style={{fontSize: 12, color: "#ffffff"}}>清空</Text>
                     </TouchableOpacity>
                 </View>
-                {carlist.length>0?<SwipeListView
+                {carlist.length > 0 ? <SwipeListView
                     dataSource={this.state.dataSource}
                     enableEmptySections={true}
                     refreshControl={
@@ -250,7 +267,7 @@ export default class cart extends Component {
                         >
 
                             <View style={styles.standaloneRowBack}>
-                                <Text style={styles.backTextWhite} onPress={this.delgoods.bind(this,data)}>删除</Text>
+                                <Text style={styles.backTextWhite} onPress={this.delgoods.bind(this, data)}>删除</Text>
                             </View>
                             <View style={styles.standaloneRowFront}>
                                 <View style={{
@@ -261,38 +278,49 @@ export default class cart extends Component {
                                     padding: px2dp(10),
                                     backgroundColor: "#fafafa"
                                 }}>
-                                    <TouchableWithoutFeedback onPress={this.checkgoods.bind(this,data)}>
-                                    <View style={{height:px2dp(120), width:px2dp(30),justifyContent: 'center',
-                                        alignItems: 'center',}}>
-                                    <View  style={{
-                                        borderWidth: 1,
-                                        borderColor: "#cccccc",
-                                        borderRadius: px2dp(11),
-                                        height: px2dp(22),
-                                        width: px2dp(22),
-                                        justifyContent:"center",
-                                        alignItems:"center",
-                                    }}>
+                                    <TouchableWithoutFeedback onPress={this.checkgoods.bind(this, data)}>
+                                        <View style={{
+                                            height: px2dp(120), width: px2dp(30), justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <View style={{
+                                                borderWidth: 1,
+                                                borderColor: "#cccccc",
+                                                borderRadius: px2dp(11),
+                                                height: px2dp(22),
+                                                width: px2dp(22),
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                            }}>
 
-                                        {data.selected&&<Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
+                                                {data.selected &&
+                                                <Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
 
 
-                                    </View>
-                                    </View>
+                                            </View>
+                                        </View>
                                     </TouchableWithoutFeedback>
 
-                                    <View style={{width: px2dp(100), padding:px2dp(5)}}>
+                                    <View style={{width: px2dp(100), padding: px2dp(5)}}>
                                         <Image
-                                            source={{uri: set.baseurl + 'data/upload/'+data.goods.thumb}}
+                                            source={{uri: set.baseurl + 'data/upload/' + data.goods.thumb}}
                                             style={{width: px2dp(90), height: px2dp(90)}}/>
                                     </View>
                                     <View style={{flex: 6}}>
-                                        <Text numberOfLines={2} style={{fontSize: px2dp(12), flex: 1}}>【{data.goods.class_name}】{data.goods.name} {data.attr.f_name}</Text>
+                                        <Text numberOfLines={2} style={{
+                                            fontSize: px2dp(12),
+                                            flex: 1
+                                        }}>【{data.goods.class_name}】{data.goods.name} {data.attr.f_name}</Text>
                                         <Text numberOfLines={2}
-                                              style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>{data.goods.title}
-                                            </Text>
-                                        <View style={{flexDirection: 'row', flex: 1, alignItems: 'center',
-                                            justifyContent:'space-between'
+                                              style={{
+                                                  fontSize: px2dp(12),
+                                                  flex: 1,
+                                                  color: "#bcbcbc",
+                                              }}>{data.goods.title}
+                                        </Text>
+                                        <View style={{
+                                            flexDirection: 'row', flex: 1, alignItems: 'center',
+                                            justifyContent: 'space-between'
                                         }}>
                                             <Text style={{fontSize: px2dp(11), color: "#e83e41"}}>￥<Text
                                                 style={{fontSize: px2dp(12)}}>{data.price}</Text></Text>
@@ -301,14 +329,15 @@ export default class cart extends Component {
                                                 color: "#bcbcbc",
                                                 marginLeft: px2dp(5)
                                             }}>￥{data.total}</Text>
-                                            <View style={{width:px2dp(80), flexDirection: 'row', marginLeft: px2dp(5)}}>
+                                            <View
+                                                style={{width: px2dp(80), flexDirection: 'row', marginLeft: px2dp(5)}}>
                                                 <TouchableOpacity style={{
                                                     flex: 1,
                                                     borderWidth: 1,
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center"
-                                                }} onPress={this.decreasenum.bind(this,data)}>
+                                                }} onPress={this.decreasenum.bind(this, data)}>
                                                     <Text style={{
                                                         fontSize: px2dp(16),
                                                     }}>
@@ -340,7 +369,7 @@ export default class cart extends Component {
                                                     borderColor: "#cccccc",
                                                     justifyContent: 'center',
                                                     alignItems: "center"
-                                                }} onPress={this.addnum.bind(this,data)}>
+                                                }} onPress={this.addnum.bind(this, data)}>
                                                     <Text style={{
                                                         fontSize: px2dp(16),
                                                     }}>
@@ -354,10 +383,11 @@ export default class cart extends Component {
                             </View>
                         </SwipeRow>
                     )}
-                />:<View style={{flex:1, justifyContent:'center', alignItems:'center'}}><Text>购物车里啥都没有</Text><Text
-                        style={{paddingHorizontal:px2dp(15),borderWidth:1, borderColor:"#ea3524",color:"#ea3524",
-                            paddingVertical:px2dp(3),borderRadius:5,margin:px2dp(10)
-                        }} onPress={this._onRefresh.bind(this)}>刷新</Text></View>}
+                /> : <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>购物车里啥都没有</Text><Text
+                    style={{
+                        paddingHorizontal: px2dp(15), borderWidth: 1, borderColor: "#ea3524", color: "#ea3524",
+                        paddingVertical: px2dp(3), borderRadius: 5, margin: px2dp(10)
+                    }} onPress={this._onRefresh.bind(this)}>刷新</Text></View>}
 
 
                 <View style={{
@@ -371,21 +401,24 @@ export default class cart extends Component {
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <View style={{flexDirection: "row", alignItems: 'center',flex:1}}>
+                    <View style={{flexDirection: "row", alignItems: 'center', flex: 1}}>
                         <TouchableWithoutFeedback onPress={this.checkall.bind(this)}>
-                            <View style={{height:px2dp(40), width:px2dp(30),justifyContent: 'center',
-                                alignItems: 'center',}}>
-                                <View  style={{
+                            <View style={{
+                                height: px2dp(40), width: px2dp(30), justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                                <View style={{
                                     borderWidth: 1,
                                     borderColor: "#cccccc",
                                     borderRadius: px2dp(11),
                                     height: px2dp(22),
                                     width: px2dp(22),
-                                    justifyContent:"center",
-                                    alignItems:"center",
+                                    justifyContent: "center",
+                                    alignItems: "center",
                                 }}>
 
-                                    {this.state.allcheck&&<Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
+                                    {this.state.allcheck &&
+                                    <Icon name={"ios-checkmark-circle"} size={px2dp(24)} color="#e83e41"/>}
 
 
                                 </View>
@@ -393,16 +426,29 @@ export default class cart extends Component {
                         </TouchableWithoutFeedback>
                         <Text>全选</Text>
                     </View>
-                    <View style={{flexDirection: "row",flex:2, alignItems: 'center',justifyContent:'flex-start'}}>
+                    <View style={{flexDirection: "row", flex: 2, alignItems: 'center', justifyContent: 'flex-start'}}>
 
-                        <Text style={{fontSize:px2dp(12)}}>合计：</Text>
-                        <Text style={{fontSize:px2dp(11), color:"#e83e41"}}>￥<Text style={{fontSize:px2dp(14)}}>{sum}</Text></Text>
+                        <Text style={{fontSize: px2dp(12)}}>合计：</Text>
+                        <Text style={{fontSize: px2dp(11), color: "#e83e41"}}>￥<Text
+                            style={{fontSize: px2dp(14)}}>{sum}</Text></Text>
                     </View>
-                    {checknum==0?
-                    <View style={{flex:1,backgroundColor:"#cccccc",height:px2dp(40),justifyContent:"center",alignItems:'center'}}>
-                    <Text style={{color:'#ffffff'}}>结算（{checknum}）</Text>
-                    </View>:<TouchableOpacity onPress={this.ordersub.bind(this)} style={{flex:1,backgroundColor:"#e83e41",height:px2dp(40),justifyContent:"center",alignItems:'center'}}>
-                        <Text style={{color:'#ffffff'}}>结算（{checknum}）</Text>
+                    {checknum == 0 ?
+                        <View style={{
+                            flex: 1,
+                            backgroundColor: "#cccccc",
+                            height: px2dp(40),
+                            justifyContent: "center",
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{color: '#ffffff'}}>结算（{checknum}）</Text>
+                        </View> : <TouchableOpacity onPress={this.ordersub.bind(this)} style={{
+                            flex: 1,
+                            backgroundColor: "#e83e41",
+                            height: px2dp(40),
+                            justifyContent: "center",
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{color: '#ffffff'}}>结算（{checknum}）</Text>
                         </TouchableOpacity>}
 
                 </View>
@@ -430,12 +476,12 @@ export default class cart extends Component {
 }
 
 const styles = StyleSheet.create({
-    backTextWhite:{
-        height:px2dp(120),
-        lineHeight:px2dp(120),
-        width:px2dp(60),
+    backTextWhite: {
+        height: px2dp(120),
+        lineHeight: px2dp(120),
+        width: px2dp(60),
         marginRight: 0,
-        textAlign:"center",
+        textAlign: "center",
     },
     standaloneRowFront: {
         alignItems: 'center',

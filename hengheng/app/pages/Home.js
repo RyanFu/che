@@ -39,6 +39,7 @@ import data from '../data'
 import Login from './Login'
 import Goods from './Goods'
 import test from './test'
+import success from './success'
 const isIOS = Platform.OS == "ios"
 const { width, height } = Dimensions.get('window')
 const headH = px2dp(isIOS?140:120)
@@ -166,37 +167,12 @@ export default class HomePage extends Component {
       </Animated.View>
     )
   }
-  openSearch(){
-    this._scrollY = this.state.scrollY._value
-    const { timing } = Animated
-    Animated.parallel(['scrollY', 'searchView'].map(property => {
-            return timing(this.state[property], {
-            toValue: property=='scrollY'?this.SEARCH_FIX_Y:1,
-            duration: 200
-        });
-    })).start(() => {
-      //this.setState({searchBtnShow: false})
-    })
-    TabView.hideTabBar()
-  }
-  closeSearch(){
-    if(this._scrollY>=this.SEARCH_FIX_Y){
-      this.state.scrollY.setValue(this._scrollY)
-    }else{
-      Animated.timing(this.state.scrollY, {
-          toValue: this._scrollY,
-          duration: 200
-      }).start()
-    }
-    //this.refs["search"].blur()
-    Animated.timing(this.state.searchView, {
-        toValue: 0,
-        duration: 200
-    }).start(() => this.setState({searchBtnShow: true}))
-    TabView.showTabBar(200)
-  }
+
   openLbs(){
-    this.setState({modalVisible: true})
+    this.props.navigator.push({
+        component:success,
+        args:[]
+    })
   }
   changeLocation(location){
     this.setState({location})

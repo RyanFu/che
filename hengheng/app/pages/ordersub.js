@@ -30,6 +30,7 @@ import set from '../config/config';
 import request from '../lib/request';
 import Icon from 'react-native-vector-icons/Ionicons'
 import px2dp from '../util/index';
+import success from './success';
 import Device from 'react-native-device-info';
 import Toast from 'react-native-root-toast';
 import OrderCoupon from './OrderCoupon'
@@ -57,14 +58,13 @@ export default class ordersub extends Component {
             sheng:0,
             usermoneysum:0,
             pay:0,
-
-
         }
         this.handleBack = this._handleBack.bind(this);
     }
-
     componentDidMount() {
+
         InteractionManager.runAfterInteractions(() => {
+        //    alert(this.props.sum)
             this._onRefresh();
             this.props.list.map((itme, i) => {
                 this.props.list[i].choosenum = 0;
@@ -106,7 +106,6 @@ export default class ordersub extends Component {
                 usesum=this.props.user.money>(this.state.total-sumcoupon)?this.state.total-sumcoupon:this.props.user.money
 
             }
-
             this.setState({
                 coupon: data.list,
                 goods: this.state.goods,
@@ -116,16 +115,13 @@ export default class ordersub extends Component {
                 pay:this.state.total-sumcoupon-usesum
 
             })
-
         });
         BackAndroid.addEventListener('hardwareBackPress', this.handleBack);
     }
-
     componentWillUnmount() {
         BackAndroid.removeEventListener('hardwareBackPress', this.handleBack);
         this.choosecoupon.remove();
     }
-
     _handleBack() {
         const navigator = this.props.navigator;
         if (navigator && navigator.getCurrentRoutes().length > 1) {
@@ -134,7 +130,6 @@ export default class ordersub extends Component {
         }
         return false;
     }
-
     selectcoupon(id, att) {
         this.props.navigator.push({
             component: OrderCoupon,
@@ -145,11 +140,9 @@ export default class ordersub extends Component {
                 coupon: this.state.coupon,
                 goods_id: id,
                 attr_id: att,
-
             }
         })
     }
-
     _rendergoods() {
         var data = [];
         this.state.goods.map((item, i) => {
@@ -222,20 +215,15 @@ export default class ordersub extends Component {
                     </View>
                 </View>
             )
-
-
         })
         return data
     }
-
     selectpay() {
         this.refs.modal.open();
     }
-
     closebtn() {
         this.refs.modal.close();
     }
-
     _fetchdata() {
         AsyncStorage.getItem("token")
             .then((data) => {
@@ -289,7 +277,6 @@ export default class ordersub extends Component {
 
 
     }
-
     _onRefresh() {
         if (!this.state.isRefreshing) {
             this.setState({
@@ -311,10 +298,19 @@ export default class ordersub extends Component {
             balance: this.state.usermoneysum,
             token: this.state.token,
             pay:this.state.pay,
-            device_token: this.state.device_token
+            device_token: this.state.device_token,
+            order_id:this.props.order_id,
+            order_sn:this.props.order_sn
         }
         request.post(set.baseurl + set.mall.checkorder, databody).then((data) => {
-                alert(data.status+"---"+data.message);
+                if(parseInt(data.status)==0)
+                {
+                    this.props.navigator.push({
+                        component:success
+                    })
+                }else{
+                    alert(data.message)
+                }
 
 
 
@@ -351,10 +347,12 @@ export default class ordersub extends Component {
         if(value)
         {
             usesum=this.props.user.money>this.state.sheng?this.state.sheng:this.props.user.money;
+
         }
         this.setState({
             usemoney:value,
             usermoneysum:usesum,
+            sheng:this.state.total-this.state.coupon_total,
             pay:this.state.total-this.state.coupon_total-usesum
 
         })
@@ -365,7 +363,7 @@ export default class ordersub extends Component {
         return (
             <View style={{flex: 1, backgroundColor: "#fafafa", position: 'relative'}}>
                 <NavBar
-                    title="确认订单"
+                    title="确认付款"
                     leftIcon="ios-arrow-back"
                     leftPress={this._handleBack.bind(this)}
                 />
@@ -531,7 +529,7 @@ export default class ordersub extends Component {
                         alignItems: 'center',
                         backgroundColor: '#e83e41',
 
-                    }}><Text style={{color: "#ffffff"}}>提交订单</Text>
+                    }}><Text style={{color: "#ffffff"}}>支付订单</Text>
                     </TouchableOpacity>
                 </View>
                 <Modal style={styles.modal} position={"bottom"} backdropOpacity={0.8} ref={"modal"} swipeToClose={false}

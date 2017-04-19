@@ -123,7 +123,6 @@ export default class My extends Component {
     }
     jumporder(args)
     {
-        this.props.navigator.SceneConfigs()
         this.props.navigator.push({
             component:Order,
             args:{

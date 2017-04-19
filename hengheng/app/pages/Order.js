@@ -47,12 +47,9 @@ export default class Order extends Component {
 
                 />
                 <ScrollableTabView renderTabBar={() => <TabViewBar/>}>
-                    <View tabLabel="全部"></View>
-                    <TakeOut tabLabel="待付款"/>
-                    <Breakfast tabLabel="待收货"/>
-                    <View tabLabel="待使用"></View>
-                    <View tabLabel="待评价"></View>
-                    <View tabLabel="己完成"></View>
+                    <TakeOut tabLabel="全部" status={-1}></TakeOut>
+                    <TakeOut tabLabel="待付款" status={0}/>
+                    <TakeOut tabLabel="己完成" status={1}></TakeOut>
                 </ScrollableTabView>
             </View>
         )

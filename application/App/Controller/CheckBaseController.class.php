@@ -21,4 +21,25 @@ class CheckBaseController extends Controller
         ($this->memberinfo['device_token'] == $_REQUEST['device_token']) or json_return(98,"您的账户己在其它设备上登陆，请重新登陆");
         
     }
+    public function account($money,$pay,$desc)
+    {
+        if(abs($money)>0)
+        {
+            $nowmoney=$this->memberinfo['money']+$money;
+            if($nowmoney>=0)
+            {
+                M("users")->where(["id"=>$this->memberinfo['id']])->save(["money"=>$nowmoney]);
+                M("account")->add(['uid'=>$this->memberinfo['id'],'money'=>$money,"time"=>date("Y-m-d H:i:s"),"pay"=>$pay,"desc"=>$desc]);
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            M("account")->add(['uid'=>$this->memberinfo['id'],'money'=>$money,"time"=>date("Y-m-d H:i:s"),"pay"=>$pay,"desc"=>$desc]);
+            return true;
+        }
+
+
+
+    }
 }
