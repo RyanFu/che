@@ -1,0 +1,41 @@
+Array
+(
+    [0] => Array
+        (
+            [id] => 4
+            [coupon_id] => 2
+            [uid] => 25
+            [car_id] => 
+            [add_time] => 2017-04-12 10:14:21
+            [effective] => 2017-04-12 10:14:24
+            [expiration] => 2018-04-12 10:14:31
+            [num] => 
+            [use_number] => 
+            [have_number] => 
+            [status] => 0
+            [name] => 优惠2
+            [desc] => 
+            [thumb] => 
+            [type] => 2
+            [details] => 
+            [worth] => 10.00
+            [class_list] => 4,5,6
+            [goods_list] => 
+            [manjian] => 
+            [ok] => 1
+            [select_attr] => -1
+            [select_id] => -1
+            [c_type] => 3
+            [c_id] => 6
+            [goods] => Array
+                (
+                    [0] => 89
+                )
+
+            [select] => 
+            [worth_title] => ￥
+            [worth_man_title] => 消费
+            [worth_man] => 0
+        )
+
+)

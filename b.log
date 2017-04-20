@@ -1,0 +1,1 @@
+select c.*,uc.name,uc.desc,uc.thumb,uc.type,uc.details,uc.worth,uc.class_list,uc.goods_list,uc.manjian from hh_user_coupon as c left join hh_conpon as uc on c.coupon_id=uc.id where c.id =2
