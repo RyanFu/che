@@ -228,9 +228,8 @@ export default class ordersub extends Component {
         AsyncStorage.getItem("token")
             .then((data) => {
                 if (data) {
-                    let token = JSON.parse(data);
                     let databody = {
-                        token: token.token,
+                        token: data,
                         device_token: Device.getUniqueID(),
                         goods: JSON.stringify(this.props.list),
                     }
@@ -305,9 +304,12 @@ export default class ordersub extends Component {
         request.post(set.baseurl + set.mall.checkorder, databody).then((data) => {
                 if(parseInt(data.status)==0)
                 {
-                    this.props.navigator.push({
-                        component:success
+                    AsyncStorage.setItem("userinfo",JSON.stringify(data.data),()=>{
+                        this.props.navigator.push({
+                            component:success
+                        })
                     })
+
                 }else{
                     alert(data.message)
                 }

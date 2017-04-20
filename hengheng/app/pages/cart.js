@@ -152,7 +152,7 @@ export default class cart extends Component {
     ordersub() {
         AsyncStorage.getItem("token").then((userdata) => {
             if (userdata) {
-                let token = JSON.parse(userdata);
+                let token = userdata;
                 var data = [];
                 carlist.map((item, i) => {
                     if (item.selected) {
@@ -164,7 +164,7 @@ export default class cart extends Component {
                     list: JSON.stringify(data),
                     sum: sum,
                     num: checknum,
-                    token: token.token,
+                    token: token,
                     device_token: Device.getUniqueID()
                 }
                 request.post(set.baseurl + set.mall.buildorder, databody).then((redata) => {
@@ -194,22 +194,37 @@ export default class cart extends Component {
                         AsyncStorage.setItem("cartlist", JSON.stringify(carlist));
                         this._fetchdata();
                         AsyncStorage.getItem("userinfo").then((userdata) => {
-                            this.props.navigator.push({
-                                component: orderSub,
-                                args: {
-                                    list: data,
-                                    sum: databody.sum,
-                                    num: databody.num,
-                                    user: JSON.parse(userdata),
-                                    order_id:redata.data.order_id,
-                                    order_sn:redata.data.order_sn
+                            if(userdata) {
+                                this.props.navigator.push({
+                                    component: orderSub,
+                                    args: {
+                                        list: data,
+                                        sum: databody.sum,
+                                        num: databody.num,
+                                        user: JSON.parse(userdata),
+                                        order_id: redata.data.order_id,
+                                        order_sn: redata.data.order_sn
 
-                                }
-                            })
+                                    }
+                                })
+                            }else{
+                                setTimeout(() => {
+                                    this.setState({
+                                        showlogin: false
+                                    })
+                                    this.props.navigator.push({
+                                        component: login,
+
+                                    })
+
+                                }, 800)
+
+                            }
                         })
 
                     } else {
                         //存在无法购买的商品，进行删除
+                        alert(redata.message);
 
 
                     }

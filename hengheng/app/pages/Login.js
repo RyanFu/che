@@ -97,13 +97,15 @@ export default class SignInPage extends Component{
                    hideOnPress: false,
                    delay: 0,
                });
-               setTimeout(()=>{
-                   AsyncStorage.setItem("token",JSON.stringify(data.data));
-                   DeviceEventEmitter.emit('login','');
-                   Toast.hide(this.toast);
-                   this.props.navigator.pop()
+               AsyncStorage.setItem("userinfo",JSON.stringify(data.data.user),()=>{
+                   setTimeout(()=>{
+                       AsyncStorage.setItem("token",data.data.user.token);
+                       DeviceEventEmitter.emit('login','');
+                       Toast.hide(this.toast);
+                       this.props.navigator.pop()
+                   },600);
+               });
 
-               },600);
 
 
            }else{

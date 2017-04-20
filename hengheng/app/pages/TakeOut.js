@@ -85,9 +85,8 @@ export default class TakeOut extends Component {
         InteractionManager.runAfterInteractions(() => {
             AsyncStorage.getItem("token").then((data) => {
                 if (data) {
-                    let token = JSON.parse(data);
                     this.setState({
-                        token: token.token,
+                        token: data,
                         device_token: Device.getUniqueID()
                     })
                     this._onRefresh()
