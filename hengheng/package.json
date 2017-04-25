@@ -12,6 +12,7 @@
     "query-string": "^4.3.2",
     "react": "~15.4.1",
     "react-native": "0.42.3",
+    "react-native-app-intro": "^1.1.5",
     "react-native-blur": "^2.0.0",
     "react-native-device-info": "^0.9.9",
     "react-native-flexi-radio-button": "^0.1.8",

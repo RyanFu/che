@@ -32,8 +32,8 @@
 <body>
 <div class="wrap js-check-wrap">
 	<ul class="nav nav-tabs">
-		<li><a href="{:U('goods/goodslist')}">套餐列表</a></li>
-		<li class="active"><a href="{:U('goods/goodsadd')}" target="_self">添加套餐</a></li>
+		<li><a href="{:U('goods/goodslist')}">打包列表</a></li>
+		<li class="active"><a href="{:U('goods/goodsadd')}" target="_self">添加打包</a></li>
 	</ul>
 	<form action="{:U('goods/goodseditdo')}" method="post" class="form-horizontal js-ajax-forms" enctype="multipart/form-data">
 		<div class="row-fluid">
@@ -151,9 +151,9 @@
             var t_id=parseInt($("#addtopattr").attr("t_id"));
             var num=parseInt($("#addtopattr").attr("s_id"));
             var html='<table id="['+num+']" s_id="'+num+'" class="table table-bordered" style="margin-bottom: 0px">' +
-                '<tr><td><div style="float:left"><input type="hidden" value="'+groupanme+'" name="attr['+num+'][group]" class="groupinput-1"/> <spn class="groupview-1">'+groupanme+'</spn><input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="套餐'+num+'" /></div>' +
+                '<tr><td><div style="float:left"><input type="hidden" value="'+groupanme+'" name="attr['+num+'][group]" class="groupinput-1"/> <spn class="groupview-1">'+groupanme+'</spn><input type="text" class="checkchang" name="attr['+num+'][name]" style="width:60px;height:15px;" placeholder="打包'+num+'" /></div>' +
                 '<div style="float:left;width:300px;height:30px" class="prices"><span>价格</span><input type="text" class="checkchang" name="attr['+num+'][price]" style="width:60px;height:15px;" placeholder="0"/>' +
-                '<span>库存</span><input type="text" class="checkchang" name="attr['+num+'][stock]" style="width:60px;height:15px;"  placeholder="0"/><div class="btn btn-small addgoods"  t_id="goodslist-'+t_id+'">添加商品</div></div>' +
+                '<span>库存</span><input type="text" class="checkchang" name="attr['+num+'][stock]" style="width:60px;height:15px;"  placeholder="0"/><div class="btn btn-small addgoods"  t_id="goodslist-'+t_id+'">添加打包</div></div>' +
                 '<div class="btn btn-small addchild">增加子属性</div><div class="btn btn-small btn-primary delattr" >' +
                 '删除</div></td></tr><tr><td style="padding-left: 50px;" id="goodslist-'+t_id+'"></td></tr></table>';
             $(this).parent().append(html);
@@ -203,7 +203,7 @@
             var html='<table class="table" id="'+parentid+'[item]['+parents_id+']" style="margin-bottom: 0px"><tr><td><div style="float:left"><input type="hidden" value="'+groupname+'" class="groupinput-'+groupid+'" name="attr'+parentid+'[item]['+parents_id+'][group]"/> <span class="groupview-'+groupid+'">'+groupname+'</span>' +
                 '<input type="text" name="attr'+parentid+'[item]['+parents_id+'][name]" style="width:60px;height:15px;" class="checkchang" placeholder="属性'+parents_id+'"/></div>' +
                 '<div style="float:left;width:300px;height:30px" class="prices"><span>价格</span><input type="text" name="attr'+parentid+'[item]['+parents_id+'][price]" class="checkchang" style="width:60px;height:15px;"  placeholder="0"/><span>库存</span>' +
-                '<input type="text" name="attr'+parentid+'[item]['+parents_id+'][stock]" style="width:60px;height:15px;" class="checkchang" placeholder="0"/><div class="btn btn-small addgoods" t_id="goodslist-'+t_id+'">添加商品</div></div>' +
+                '<input type="text" name="attr'+parentid+'[item]['+parents_id+'][stock]" style="width:60px;height:15px;" class="checkchang" placeholder="0"/><div class="btn btn-small addgoods" t_id="goodslist-'+t_id+'">添加打包</div></div>' +
                 '<div class="btn btn-small addchild">增加子属性</div>' +
                 '<div class="btn btn-small btn-primary delattr">删除</div></td></tr>' +
                 '<tr><td style="padding-left: 50px; border-left: none" id="goodslist-'+t_id+'"></td></tr></table>';
@@ -266,7 +266,7 @@
                 art.dialog.data('t_id', $(this).attr("t_id"));
                 art.dialog.data('list_id', $(this).parent().parent().parent().parent().parent().attr("id"));
                 art.dialog.open("__ROOT__/index.php?g=service&m=goods&a=selectgoods", {
-                    title : "选择商品",
+                    title : "选择打包",
                     width : "800px",
                     height:"700px"
                 });

@@ -43,11 +43,12 @@
                         {$vo.select_categorys}
                     </select>
                     <else />
-                       <input type="hidden" name="classify" value="0" /> "服务商品"
+                       <input type="hidden" name="classify" value="0" /> "服务打包"
                 </if>
                 </td>
                 <td>
                     <input type="hidden" class="goodsid" value="{$vo.id}">
+                    <input type="hidden" class="goodstype" value="{$vo.type}">
                     <input type="text" class="goodsnum" value="1" style="height: 15px; width: 50px">
                 </td>
                 <td>
@@ -68,7 +69,7 @@
                 var selectattr=$(this).parent().prev().prev().children().val();
                if($('#list-'+t_id+"-"+$(this).attr("s_id")+'-'+selectattr, window.parent.document).attr("id"))
                {
-                   alert("此商品己存在于此套餐中，请不要重复添加");
+                   alert("此打包己存在于此套餐中，请不要重复添加");
                    return;
                }
                 $(this).parent().prev().prev().children().children().attr("selected",false);
@@ -76,6 +77,7 @@
                 $(this).parent().prev().children('.goodsnum').attr("value",$(this).parent().prev().children('.goodsnum').val());
                 $(this).parent().prev().prev().children().attr("name","attr"+list_id+'[attrlist]['+selectattr+'][attr_id]')
                 $(this).parent().prev().children('.goodsid').attr("name","attr"+list_id+'[attrlist]['+selectattr+'][goods_id]')
+                $(this).parent().prev().children('.goodstype').attr("name","attr"+list_id+'[attrlist]['+selectattr+'][goods_type]')
                 $(this).parent().prev().children('.goodsnum').attr("name","attr"+list_id+'[attrlist]['+selectattr+'][num]')
                 $('#'+t_id, window.parent.document).append('<table class="table table-hover table-bordered table-list" style="height: 30px"><tr style="height: 30px;"  id="list-'+t_id+"-"+$(this).attr("s_id")+'-'+selectattr+'">'+$(this).parent().parent().html()+'</tr></table>')
                 $('#'+t_id, window.parent.document).parent().prev().children().children(".addchild").hide();

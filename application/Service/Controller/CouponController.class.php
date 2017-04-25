@@ -21,9 +21,9 @@ class CouponController extends AdminbaseController {
         {
             $condition["name"]=["like","%".I("post.name")."%"];
         }
-        $count=M("conpon")->where($condition)->count();
+        $count=M("coupon")->where($condition)->count();
         $page=$this->page($count,12);
-        $list=M("conpon")->where($condition)->order("id desc")->limit($page->firstRow , $page->listRows)->select();
+        $list=M("coupon")->where($condition)->order("id desc")->limit($page->firstRow , $page->listRows)->select();
         $this->assign("page",$page->show("Admin"));
         $this->assign("list",$list);
         $this->display();
@@ -33,7 +33,7 @@ class CouponController extends AdminbaseController {
      */
     public function setcouponstatus()
     {
-        M("conpon")->where(['id'=>$_POST['id']])->save([$_POST['type']=>$_POST['value']]) and json_return(0,"修改成功");
+        M("coupon")->where(['id'=>$_POST['id']])->save([$_POST['type']=>$_POST['value']]) and json_return(0,"修改成功");
         json_return(1,"修改失败");
 
     }
@@ -88,21 +88,26 @@ class CouponController extends AdminbaseController {
             }
         }
         $_POST["class_list"]=$this->classlist;
+        $_POST['add_time']=date('Y-m-d H:i:s');
+        $_POST['type_template']=htmlspecialchars($_POST['type_template']);
+        $_POST['class_template']=htmlspecialchars($_POST['class_template']);
+        $_POST['goods_template']=htmlspecialchars($_POST['goods_template']);
         if($_POST['type']==1)
         {
             $_POST['man'] or $this->error("请添加满减规则！");
             $manjian=[];
             foreach ($_POST['man'] as $key=>$value)
             {
-                $manjian[]=["man"=>$value,"jian"=>$_POST['jian'][$key]];
+                $_POST["c_man"]=$value;
+                $_POST["c_jian"]=$_POST['jian'][$key];
+                $_POST["title"]="满".$value."减".$_POST['jian'][$key];
+                $manjian[]=$_POST;
             }
-            $_POST['manjian']=serialize($manjian);
+            M("coupon")->addAll($manjian) or $this->error("添加失败！");
+        }else{
+            M("coupon")->add($_POST) or $this->error("添加失败！");
         }
-        $_POST['add_time']=date('Y-m-d H:i:s');
-        $_POST['type_template']=htmlspecialchars($_POST['type_template']);
-        $_POST['class_template']=htmlspecialchars($_POST['class_template']);
-        $_POST['goods_template']=htmlspecialchars($_POST['goods_template']);
-        M("conpon")->add($_POST) or $this->error("添加失败！");
+
         $this->addlog(session("ADMIN_ID"),"用户".session('name')."添加了:".$_POST["name"]." 的优惠劵");
         $this->success("添加成功");
 
@@ -114,7 +119,7 @@ class CouponController extends AdminbaseController {
     public function couponedit()
     {
         $id=  I("get.id",0,'intval');
-        $info=M("conpon")->where(["id"=>$id])->find();
+        $info=M("coupon")->where(["id"=>$id])->find();
         $info['type_template']=htmlspecialchars_decode($info['type_template']);
         $info['class_template']=htmlspecialchars_decode($info['class_template']);
         $info['goods_template']=htmlspecialchars_decode($info['goods_template']);
@@ -128,7 +133,7 @@ class CouponController extends AdminbaseController {
     {
         $_POST["name"] or $this->error("请填写标题！");
         $_POST["id"] or $this->error("商品信息错误！");
-        M("conpon")->where(['id'=>$_POST['id']])->find() or $this->error("商品信息错误！");
+        M("coupon")->where(['id'=>$_POST['id']])->find() or $this->error("商品信息错误！");
         $_POST['goodslist'] and $_POST['goods_list']=implode(',',$_POST['goodslist']);
         $_POST['class'] and $this->classlist=implode(',',$_POST['class']);
         if($_POST['class'])
@@ -153,7 +158,7 @@ class CouponController extends AdminbaseController {
         $_POST['type_template']=htmlspecialchars($_POST['type_template']);
         $_POST['class_template']=htmlspecialchars($_POST['class_template']);
         $_POST['goods_template']=htmlspecialchars($_POST['goods_template']);
-        M("conpon")->where(['id'=>$_POST['id']])->save($_POST) or $this->error("修改失败！");
+        M("coupon")->where(['id'=>$_POST['id']])->save($_POST) or $this->error("修改失败！");
         $this->addlog(session("ADMIN_ID"),"用户".session('name')."修改了:".$_POST["name"]." 的优惠劵");
         $this->success("修改成功");
 
@@ -166,14 +171,14 @@ class CouponController extends AdminbaseController {
     {
         if(isset($_GET['id'])){
             $id = I("get.id",0,'intval');
-            M("conpon")->where(['id'=>$id])->delete() or $this->error("删除失败！");;
+            M("coupon")->where(['id'=>$id])->delete() or $this->error("删除失败！");;
             $this->addlog(session("ADMIN_ID"),"用户".session('name')."删除了ID为:".$id."的服务");
             $this->success("删除成功！");
         }
 
         if(isset($_POST['ids'])){
             $ids = implode(',',I('post.ids/a'));
-            M("conpon")->where(['id'=>['in',$ids]])->delete() or $this->error("删除失败！");;
+            M("coupon")->where(['id'=>['in',$ids]])->delete() or $this->error("删除失败！");;
             $this->addlog(session("ADMIN_ID"),"用户".session('name')."删除了ID为:".$ids."的服务");
             $this->success("删除成功！");
 

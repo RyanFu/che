@@ -71,6 +71,8 @@ class ServiceController extends AdminbaseController {
             $list[$key]["service_model_id"]=$tmparr[0];
             $list[$key]["num"]=$tmparr[1];
         }
+        $attr=["goods_id"=>$service_id,"attr_id"=>1,"f_id"=>0,"stock"=>$_POST['stock'],"price"=>$_POST['prices'],"name"=>"标准服务","islast"=>1,"f_name"=>"标准服务","group"=>"服务"];
+        M("goods_attr")->add($attr);
         M("service_list")->addAll($list) or $this->error("未知错误，添加服务列表失败！");
         $this->addlog(session("ADMIN_ID"),"用户".session('name')."添加了:".$_POST["name"]." 商品");
         $this->success("添加成功！");
@@ -108,6 +110,7 @@ class ServiceController extends AdminbaseController {
             $list[$key]["service_model_id"]=$tmparr[0];
             $list[$key]["num"]=$tmparr[1];
         }
+        M("goods_attr")->where(['goods_id'=>$_POST["id"]])->save(['price'=>$_POST['prices'],"stock"=>$_POST['stock']]);
         M("service_list")->addAll($list) or $this->error("未知错误，修改工序失败！");
         M("goods")->save($_POST);
         $this->addlog(session("ADMIN_ID"),"用户".session('name')."修改了:".$_POST["name"]." 服务");
@@ -122,6 +125,7 @@ class ServiceController extends AdminbaseController {
         if(isset($_GET['id'])){
             $id = I("get.id",0,'intval');
             M("service_list")->where(["goods_id"=>$id])->delete();
+            M("goods_attr")->where(["goods_id"=>$id])->delete();
             M("goods")->where(array('id'=>$id))->delete();
             $this->addlog(session("ADMIN_ID"),"用户".session('name')."删除了ID为:".$id."的服务");
             $this->success("删除成功！");
@@ -130,6 +134,7 @@ class ServiceController extends AdminbaseController {
         if(isset($_POST['ids'])){
             $id =implode(',',I('post.ids/a'));
             M("service_list")->where(["goods_id"=>['in',$id]])->delete();
+            M("goods_attr")->where(["goods_id"=>['in',$id]])->delete();
             M("goods")->where(array('id'=>['in',$id]))->delete();
             $this->addlog(session("ADMIN_ID"),"用户".session('name')."删除了ID为:".$id."的服务");
             $this->success("删除成功！");

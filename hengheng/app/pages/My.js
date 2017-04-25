@@ -50,6 +50,7 @@ export default class My extends Component {
             photo:set.baseurl+set.interface.default_photo,
             name:"请登陆",
             mobile:"",
+            money:0,
         }
         this.config = [
             {icon: "md-images", name: "我的爱车", onPress: this.goPage.bind(this, "carlist")},
@@ -143,9 +144,9 @@ export default class My extends Component {
         AsyncStorage.getItem("token")
             .then((data) => {
                 if (data) {
-                    let token=JSON.parse(data);
+                    let token=data;
                     let databody={
-                        token:token.token,
+                        token:token,
                         device_token:Device.getUniqueID()
                     }
                     request.post(set.baseurl+set.interface.userinfo,databody).then((data)=>{
@@ -154,10 +155,11 @@ export default class My extends Component {
                             this.setState({
                                 isRefreshing: false,
                                 isLogin:true,
-                                token:token.token,
+                                token:token,
                                 name:data.data.name,
                                 mobile:data.data.mobile,
-                                photo:set.baseurl+data.data.photo
+                                photo:set.baseurl+data.data.photo,
+                                money:data.data.money,
                             });
 
                             AsyncStorage.setItem("userinfo",JSON.stringify(data.data));
@@ -257,7 +259,7 @@ export default class My extends Component {
                                         fontSize: 18,
                                         textAlign: "center",
                                         fontWeight: "bold"
-                                    }}>{"0元"}</Text>
+                                    }}>{this.state.money}</Text>
                                     <Text style={{
                                         color: "#333",
                                         fontSize: 12,

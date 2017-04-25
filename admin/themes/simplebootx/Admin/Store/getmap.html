@@ -1,0 +1,50 @@
+<admintpl file="header"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+    body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Q393XCHm9glaEfGSFLAqx9Or"></script>
+<title>选取店铺坐标</title>
+</head>
+
+<body>
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+
+    var map = new BMap.Map("allmap");  // 创建Map实例
+    map.enableScrollWheelZoom(true);
+    Wind.use("artDialog","iframeTools", function() {
+        var x=art.dialog.data("x");
+        var y=art.dialog.data("y");
+        if(parseInt(x)==0 && parseInt(y)==0)
+        {
+            map.centerAndZoom("吉首",15);
+
+        }else{
+            var point=new BMap.Point(x,y);
+            map.centerAndZoom(point,15);
+            map.addOverlay(new BMap.Marker(point))
+
+        }
+    })
+        // 初始化地图,用城市名设置地图中心点
+    map.addEventListener("click",function(e){
+        map.clearOverlays();
+        setTimeout(function(){
+            map.addOverlay(new BMap.Marker(e.point))
+            Wind.use("artDialog","iframeTools", function() {
+
+                $('#p_x', window.parent.document).val(e.point.lng);
+                $('#p_y', window.parent.document).val(e.point.lat);
+
+            });
+        },100)
+
+    });
+
+
+</script>

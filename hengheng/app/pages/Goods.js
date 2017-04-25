@@ -31,6 +31,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import px2dp from '../util/index'
 import theme from '../config/theme';
 import GoodsDetail from '../component/GoodsDetail'
+import Device from 'react-native-device-info';
 import CustomTabBar from '../component/CustomTabBar';
 import Swiper from 'react-native-swiper';
 import set from '../config/config';
@@ -38,9 +39,10 @@ import Comments from './Comments'
 import Modal from 'react-native-modalbox';
 import PhotoView from 'react-native-photo-view'
 import RenderGoodsAttr from '../component/RenderGoodsAttr'
+import request from '../lib/request';
+import login from './Login'
 import cart from './cart'
 import order from './ordersub'
-import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 let {width, height} = Dimensions.get('window')
 let cartlist = []
 const renderPagination = (index, total, context) => {
@@ -157,20 +159,16 @@ export default class Goods extends Component {
             isnowbuy: buyfuc
         })
     }
-
-
     closebtn() {
         this.refs.modal.close();
         this.hidemodel();
     }
-
     hidemodel() {
         Animated.timing(
             this.state.modelmargin,//初始值
             {toValue: 1}//结束值
         ).start();//开始
     }
-
     decreasenum() {
         if (this.state.num > 1) {
             this.setState({
@@ -178,7 +176,6 @@ export default class Goods extends Component {
             })
         }
     }
-
     showViewer() {
         this.setState({
             imgList: [
@@ -188,7 +185,6 @@ export default class Goods extends Component {
             ],
             showViewer: true,
         })
-
     }
     getselectattr(att)
     {
@@ -196,30 +192,18 @@ export default class Goods extends Component {
             selectgoodsattr:att
         })
     }
-
-
     addnum() {
         this.setState({
             num: this.state.num + 1
         })
     }
-
     viewerPressHandle() {
 
         this.setState({
             showViewer: false
         })
     }
-
     attrlist() {
-        if (this.state.isnowbuy) {
-
-            this.props.navigator.push({
-                component: order,
-                args: {}
-            })
-        } else {
-
             //加入购物车
             this.setState({
                 showmask: true
@@ -232,7 +216,6 @@ export default class Goods extends Component {
                     {
                         cartlist.push(list[key]);
                     }
-
                 }
                 var key = 0
                 var ishave = false;
@@ -252,9 +235,7 @@ export default class Goods extends Component {
                                 key = i;
                             }
                         }
-
                     }
-
                 })
                 if (ishave) {
                     cartlist[key].num += this.state.num;
@@ -276,13 +257,107 @@ export default class Goods extends Component {
                         showok: false
                     })
                 }, 1000);
-
             })
+        if (this.state.isnowbuy) {
+            AsyncStorage.getItem("token").then((userdata) => {
+                if (userdata) {
+                    let token = userdata;
+                    var data = [];
+                    var sum=0;
+                    cartlist.map((item, i) => {
+                        if(cartlist[i].attr.id == this.state.selectgoodsattr.id) {
+                            if (cartlist[i].id == this.state.goods.id) {
+                                data.push(item);
+                                sum=item.price*this.state.num;
+                            }
+                        }
+                    })
+                    //生成未付款订单
+                    var databody = {
+                        list: JSON.stringify(data),
+                        sum: sum,
+                        num: 1,
+                        token: token,
+                        device_token: Device.getUniqueID()
+                    }
+                    request.post(set.baseurl + set.mall.buildorder, databody).then((redata) => {
+                        if (parseInt(redata.status) == 99) {
+                                this.props.navigator.push({
+                                    component: login,
+
+                                })
+                        } else if (parseInt(redata.status) == 0) {
+                            //删除购物车中己提交的商品
+                            var newlist = [];
+                            cartlist.map((item, i) => {
+                                if(cartlist[i].attr.id != this.state.selectgoodsattr.id) {
+                                    if (cartlist[i].id != this.state.goods.id) {
+                                        newlist.push(item);
+                                    }
+                                }
+                            });
+                            cartlist = newlist;
+                            AsyncStorage.setItem("cartlist", JSON.stringify(cartlist));
+                            AsyncStorage.getItem("userinfo").then((userdata) => {
+                                if(userdata) {
+                                    this.props.navigator.push({
+                                        component: order,
+                                        args: {
+                                            list: data,
+                                            sum: databody.sum,
+                                            num: 1,
+                                            user: JSON.parse(userdata),
+                                            order_id: redata.data.order_id,
+                                            order_sn: redata.data.order_sn
+
+                                        }
+                                    })
+                                }else{
+                                    setTimeout(() => {
+                                        this.setState({
+                                            showlogin: false
+                                        })
+                                        this.props.navigator.push({
+                                            component: login,
+
+                                        })
+
+                                    }, 800)
+
+                                }
+                            })
+
+                        } else {
+                            //存在无法购买的商品，进行删除
+                            alert(redata.message);
+
+
+                        }
+                    })
+                } else {
+                    this.setState({
+                        showlogin: true
+                    })
+                    setTimeout(() => {
+                        this.setState({
+                            showlogin: false
+                        })
+                        this.props.navigator.push({
+                            component: login,
+
+                        })
+
+                    }, 800)
+                }
+            });
 
 
 
 
         }
+
+
+
 
     }
 
@@ -384,7 +459,7 @@ export default class Goods extends Component {
                         borderTopLeftRadius: px2dp(8),
                         borderTopRightRadius: px2dp(8)
                     }}>
-                        <RenderGoodsAttr data={this.props.data.attrlist} selectatt={this.getselectattr.bind(this)}/>
+                        <RenderGoodsAttr data={this.props.data.attrlist} type={this.props.data.type} price={this.props.data.prices} selectatt={this.getselectattr.bind(this)}/>
                         <View style={{
                             flex: 1, backgroundColor: "#ffffff", paddingBottom: px2dp(40), borderTopWidth: 1,
                             borderTopColor: "#cccccc", justifyContent: "flex-start",height:px2dp(70)

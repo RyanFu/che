@@ -127,7 +127,7 @@ class PublicController extends Controller
         $userinfo['user_status'] == 0 and json_return(1, "用户己被封号");
         $userinfo["token"] = encrypt(['id' => $userinfo["id"], 'time' => time()], 'liaopeng');
         M("users")->where(['id' => $userinfo['id']])->save(["device_token" => $_POST["device_token"], "client" => $_POST["client"], 'last_login_time' => date("Y-m-d H:i:s"), 'token' => $userinfo["token"]]);
-        json_return(0, "登陆成功", ['token' => $userinfo["token"]]);
+        json_return(0, "登陆成功", ['user' => $userinfo]);
 
     }
 
@@ -323,7 +323,8 @@ class PublicController extends Controller
         foreach ($list as $key => $v) {
             $v['thumbs'] = unserialize($v['thumbs']);
             $list[$key]['thumbs'] = $v['thumbs']['url'];
-            $v['type'] == 1 or $attrgoodsids .= $v['id'] . ',';
+            //$v['type'] == 1 or $attrgoodsids .= $v['id'] . ',';
+            $attrgoodsids .= $v['id'] . ',';
         }
         $attrgoodsids = rtrim($attrgoodsids);
         $total = M("goods")->where($condition)->count();
@@ -400,10 +401,12 @@ class PublicController extends Controller
     {
         $id = $_GET['id'];
         $info = M('goods')->where(['id' => $id])->find();
+        /*
         if($info.type==1)
         {
             $info['attr']['id']=-1;
         }
+        */
         json_return(0, "", $info);
 
     }

@@ -49,9 +49,9 @@ export default class Carlist extends Component {
         AsyncStorage.getItem("token")
             .then((data) => {
                 if (data) {
-                    let token = JSON.parse(data);
+                    let token = data;
                     this.setState({
-                        token: token.token,
+                        token: token,
                         device_token: Device.getUniqueID()
                     })
                     request.post(set.baseurl+set.interface.usercarlist,this.state).then((data)=>{

@@ -11,8 +11,7 @@ import {
     BackAndroid
 } from 'react-native'
 import NavBar from '../component/NavBar'
-import TakeOut from './TakeOut'
-import Breakfast from './Breakfast'
+import OrderList from '../component/OrderList'
 import TabViewBar from '../component/TabViewBar'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
 export default class Order extends Component {
@@ -47,9 +46,9 @@ export default class Order extends Component {
 
                 />
                 <ScrollableTabView renderTabBar={() => <TabViewBar/>}>
-                    <TakeOut tabLabel="全部" status={-1}></TakeOut>
-                    <TakeOut tabLabel="待付款" status={0}/>
-                    <TakeOut tabLabel="己完成" status={1}></TakeOut>
+                    <OrderList tabLabel="全部" status={-1}></OrderList>
+                    <OrderList tabLabel="待付款" status={0}/>
+                    <OrderList tabLabel="己完成" status={1}></OrderList>
                 </ScrollableTabView>
             </View>
         )

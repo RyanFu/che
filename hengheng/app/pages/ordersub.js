@@ -160,13 +160,15 @@ export default class ordersub extends Component {
                             style={{width: px2dp(90), height: px2dp(90)}}/>
                     </View>
                     <View style={{flex: 5}}>
+                        <View style={{height:px2dp(60)}}>
                         <Text numberOfLines={2} style={{
                             fontSize: px2dp(12),
                             flex: 1
                         }}>【{item.goods.class_name}】{item.goods.name} {item.attr.f_name}</Text>
                         <Text numberOfLines={2}
                               style={{fontSize: px2dp(12), flex: 1, color: "#bcbcbc",}}>{item.goods.title}</Text>
-                        <View style={{
+                        </View>
+                            <View style={{
                             flexDirection: 'row',
                             flex: 1,
                             alignItems: 'center',
