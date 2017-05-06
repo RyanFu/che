@@ -19,7 +19,7 @@ import {
 } from 'react-native'
 import px2dp from '../util'
 import Icon from 'react-native-vector-icons/Ionicons'
-
+import theme from '../config/theme'
 export default class NavBar extends Component{
     static propTypes = {
         title: PropTypes.string,
@@ -85,7 +85,7 @@ export default class NavBar extends Component{
 const styles = StyleSheet.create({
     topbar: {
         height: NavBar.topbarHeight,
-        backgroundColor: "#e83e41",
+        backgroundColor: theme.bkColor,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

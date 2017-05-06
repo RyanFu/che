@@ -13,7 +13,9 @@
 #import <React/RCTRootView.h>
 #import "SplashScreen.h"
 #import "RCTHotUpdate.h"
+#import "../Libraries/LinkingIOS/RCTLinkingManager.h"
 @implementation AppDelegate
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -37,6 +39,14 @@ fallbackResource:nil];
   [self.window makeKeyAndVisible];
   [SplashScreen show];
   return YES;
+}
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+  if([[sourceApplication substringToIndex:10] isEqualToString:@"com.alipay"]){
+    [AlipayModule handleCallback:url];
+  }
+  return [RCTLinkingManager application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
 }
 
 @end

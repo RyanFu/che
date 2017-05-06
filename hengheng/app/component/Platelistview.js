@@ -46,7 +46,7 @@ export default class Platelistview extends Component {
                     this.props.showleft(rowData.list)
                 }}>
                 <View style={styles.rowdata}>
-                    <Image source={{uri: 'http://192.168.1.88/data/upload' + rowData.icon}}
+                    <Image source={{uri: 'http://www.jzdzsw.com/data/upload' + rowData.icon}}
                            style={{
                                height: px2dp(30),
                                width: px2dp(30),

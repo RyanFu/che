@@ -33,7 +33,7 @@ let cacheResults = {
     total: 0,
     items: []
 }
-export default class CardList extends Component {
+export default class CouponList extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -74,18 +74,14 @@ export default class CardList extends Component {
                 this.setState({
                     hasmore: false
                 })
-
             }
-
-
             var databody = {
                 page: cacheResults.page,
                 token: this.state.token,
                 device_token: this.state.device_token,
                 status: this.props.status,
-                type:this.props.type
             }
-            request.post(set.baseurl + set.mall.getusercard, databody).then((data) => {
+            request.post(set.baseurl + set.mall.getusercouponlist, databody).then((data) => {
                 if (parseInt(data.status) == 0) {
                     cacheResults.items = cacheResults.items.concat(data.data.list);
                     cacheResults.total = data.data.total;
@@ -122,66 +118,30 @@ export default class CardList extends Component {
     }
 
     _renderRow(db) {
-        {/* <View key={i} style={{flexDirection: 'row', backgroundColor: "#ffffff", paddingVertical: px2dp(10)}}>
 
-         <View style={{
-         flex: 3, paddingHorizontal: px2dp(20), paddingVertical: px2dp(5), borderBottomColor: "#f0f0f0",
-         borderBottomWidth: 1
-         }}>
-         <Text style={{color: "#333333", marginBottom: px2dp(5)}}
-         numberOfLines={1}>{item.name}</Text>
-         <Text style={{color: "#555555", fontSize: px2dp(12), marginBottom: px2dp(5)}}
-         numberOfLines={2}>{item.desc}</Text>
-         <Text style={{color: "#ea3524", fontSize: px2dp(14), fontWeight: "bold", marginBottom: px2dp(5)}}>使用：{item.used_num}/{item.num}</Text>
-         <Text style={{color: "#555555", fontSize: px2dp(12), marginBottom: px2dp(5)}}
-         numberOfLines={2}>有效期至:{item.end_time}</Text>
-         </View>
-
-
-         </View>
-         */}
-        var card_list = [];
-        db.card.map((item, i) => {
-            card_list.push(
-
-                <View key={i} style={{
+        return (
+            <View style={{
                 justifyContent: 'space-between',
-                margin: px2dp(10),
-                borderRadius: px2dp(10),
+                marginTop: px2dp(10),
+                marginLeft: px2dp(10),
+                marginRight: px2dp(10),
                 backgroundColor: "#ffffff",
-                padding: px2dp(10),
             }}>
                 <View style={{flex: 1, flexDirection: 'row',}}>
-                    <View style={{flex: 1}}>
-                        <Image
-                            source={{uri: set.baseurl + 'data/upload/avatar/15_thumb_1488773131.jpg'}}
-                            style={{width: px2dp(80), height: px2dp(80), borderRadius: px2dp(10)}}>
-                        </Image>
-
-                    </View>
-                    <View style={{flex: 2,}}>
-                        <Text style={{fontSize:px2dp(16)}}>{item.name}</Text>
-                        <Text style={{fontSize:px2dp(16)}}>{item.desc}</Text>
-                        <View style={{flex: 1,marginTop:px2dp(15),alignItems:'flex-start',justifyContent:"flex-start"}}>
-                            <Text style={{color:"#bbbbbb",fontSize:px2dp(11)}}>有效期至：{item.end_time}</Text>
-                            <Text style={{color:"#bbbbbb",fontSize:px2dp(11)}}>总次数：含{item.num}次 己使用{item.used_num}次</Text>
-
+                    <View style={{flex: 1, backgroundColor:"#2c9c2c",justifyContent:'center',alignItems:'center'}}>
+                        <View style={{paddingTop:px2dp(5),paddingBottom:px2dp(5)}}>
+                            <Text style={{fontSize:px2dp(11), color:"#ffffff"}}>{db.worth}</Text>
+                            <Text style={{fontSize:px2dp(11), color:"#ffffff"}}>{db.attr_title}</Text>
                         </View>
 
-
+                    </View>
+                    <View style={{flex: 3,justifyContent:'center',alignItems:'center'}}>
+                        <Text style={{fontSize:px2dp(16)}}>{db.name}</Text>
+                        <Text style={{color:"#bbbbbb",fontSize:px2dp(11),marginTop:px2dp(5)}}>{db.effective}-{db.expiration}</Text>
                     </View>
                 </View>
-
             </View>
-            )
 
-        })
-        return (
-            <View style={{marginVertical: px2dp(5), backgroundColor: "#ffffff"}}>
-                <Text style={{height:px2dp(30), paddingLeft:px2dp(5),lineHeight:px2dp(30),fontWeight:"bold"}}>商品：{db.name}</Text>
-                {card_list}
-
-            </View>
         )
 
     }

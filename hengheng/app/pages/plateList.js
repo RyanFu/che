@@ -110,7 +110,7 @@ export default class List extends Component {
                })
 
            } else {
-               request.get("http://192.168.1.88/index.php?g=app&m=public&a=getcarbrand", null).then((data) => {
+               request.get("http://www.jzdzsw.com/index.php?g=app&m=public&a=getcarbrand", null).then((data) => {
                    if (data) {
                        for (let j = 0; j < letters.length; j++) {
                            let each = []
@@ -196,7 +196,7 @@ export default class List extends Component {
                     this.showleft(rowData.list)
                 }}>
                 <View style={styles.rowdata}>
-                    <Image source={{uri: 'http://192.168.1.88/data/upload' + rowData.icon}}
+                    <Image source={{uri: 'http://www.jzdzsw.com/data/upload' + rowData.icon}}
                            style={{
                                height: px2dp(30),
                                width: px2dp(30),

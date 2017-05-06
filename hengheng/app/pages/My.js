@@ -36,6 +36,7 @@ import set from '../config/config';
 import Device from 'react-native-device-info';
 import Sendmsg from './SendMsg'
 import Order from './Order'
+import theme from '../config/theme'
 import Account from './Account'
 import Coupon from './Coupon'
 import CardBag from './CardBag'
@@ -280,17 +281,13 @@ export default class My extends Component {
                                     borderRightWidth: 1,
                                     borderRightColor: "#f5f5f5"
                                 }]}>
-                                    <Text style={{
-                                        color: "#ff5f3e",
-                                        fontSize: 18,
-                                        textAlign: "center",
-                                        fontWeight: "bold"
-                                    }}>{"0"}</Text>
+
                                     <Text style={{
                                         color: "#333",
-                                        fontSize: 12,
+                                        fontSize: 14,
                                         textAlign: "center",
-                                        paddingTop: 5
+                                        paddingTop: 5,
+                                        fontWeight:'bold'
                                     }}>{"卡包"}</Text>
                                 </View>
                             </TouchableWithoutFeedback>
@@ -302,36 +299,48 @@ export default class My extends Component {
                                 })
                             }}>
                              <View style={styles.numItem}>
-                                    <Text style={{
-                                        color: "#6ac20b",
-                                        fontSize: 18,
-                                        textAlign: "center",
-                                        fontWeight: "bold"
-                                    }}>{"0"}</Text>
-                                    <Text style={{
-                                        color: "#333",
-                                        fontSize: 12,
-                                        textAlign: "center",
-                                        paddingTop: 5
-                                    }}>{"优惠劵"}</Text>
+                                 <Text style={{
+                                     color: "#333",
+                                     fontSize: 14,
+                                     textAlign: "center",
+                                     paddingTop: 5,
+                                     fontWeight:'bold'
+                                 }}>{"优惠劵"}</Text>
                                 </View>
                             </TouchableWithoutFeedback>
                         </View>
 
                         <View style={{height:px2dp(30),paddingLeft:px2dp(15),marginTop:px2dp(10),backgroundColor:"#ffffff"}}>
+                            <TouchableWithoutFeedback onPress={()=>{this.jumporder("finished")}}>
                             <View style={{flexDirection:'row',flex:1,justifyContent:'space-between', alignItems:'center',borderBottomWidth:1,borderBottomColor:'#eeeeee'}}>
-                                <Text style={{fontSize:px2dp(11)}}>
+                                <Text style={{fontSize:px2dp(14)}}>
                                     我的订单
                                 </Text>
-                                <TouchableWithoutFeedback onPress={()=>{this.jumporder("finished")}}>
+
                                 <View style={{flexDirection:'row',justifyContent:'space-between', alignItems:'center'}}>
                                     <Text style={{marginRight:px2dp(5),fontSize:px2dp(11),color:"#aaaaaa"}}>全部订单</Text>
                                     <Icon name="ios-arrow-forward-outline" size={px2dp(18)} color="#bbbbbb" style={{marginRight:px2dp(10)}}/>
                                 </View>
-                                </TouchableWithoutFeedback>
+
                             </View>
+                        </TouchableWithoutFeedback>
                         </View>
-                        <View style={styles.orders}>
+                        <View style={{height:px2dp(30),paddingLeft:px2dp(15),marginTop:px2dp(10),backgroundColor:"#ffffff"}}>
+                            <TouchableWithoutFeedback onPress={()=>{this.jumporder("finished")}}>
+                                <View style={{flexDirection:'row',flex:1,justifyContent:'space-between', alignItems:'center',borderBottomWidth:1,borderBottomColor:'#eeeeee'}}>
+                                    <Text style={{fontSize:px2dp(14)}}>
+                                        我的评价
+                                    </Text>
+
+                                    <View style={{flexDirection:'row',justifyContent:'space-between', alignItems:'center'}}>
+                                        <Text style={{marginRight:px2dp(5),fontSize:px2dp(11),color:"#aaaaaa"}}>全部订单</Text>
+                                        <Icon name="ios-arrow-forward-outline" size={px2dp(18)} color="#bbbbbb" style={{marginRight:px2dp(10)}}/>
+                                    </View>
+
+                                </View>
+                            </TouchableWithoutFeedback>
+                        </View>
+                        {/* <View style={styles.orders}>
                             <TouchableWithoutFeedback onPress={()=>{this.jumporder("finished")}}>
                                 <View style={styles.numItem}>
                                     <Icon name="ios-basket-outline" size={px2dp(18)}/>
@@ -407,7 +416,7 @@ export default class My extends Component {
                                     }}>{"己完成"}</Text>
                                 </View>
                             </TouchableWithoutFeedback>
-                        </View>
+                        </View> */}
                         <View>
                             {this._renderListItem()}
                         </View>
@@ -420,7 +429,7 @@ export default class My extends Component {
 const styles = StyleSheet.create({
     scrollView: {
         marginBottom: px2dp(46),
-        backgroundColor: "#e83e41"
+        backgroundColor: theme.bkColor
     },
     userHead: {
         justifyContent: "space-between",
@@ -428,7 +437,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingHorizontal: 20,
         paddingVertical: 20,
-        backgroundColor: "#e83e41"
+        backgroundColor: theme.bkColor
     },
     numbers: {
         flexDirection: "row",

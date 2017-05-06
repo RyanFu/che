@@ -15,8 +15,9 @@ module.exports = {
     pageBackgroundColor: '#f4f4f4',
     grayColor: '#c4c4c4',
     btnActiveOpacity: 0.7,
+    bkColor: '#b2272b',//主题色彩  备选：e83e41
     actionBar: {
-        height: (Platform.OS === 'android') ? px2dp(49) : px2dp(69),
+        height: Platform.OS === 'ios' ? 64 : 42,
         backgroundColor: 'rgb(22,131,251)',
         fontSize: px2dp(16),
         fontColor: 'white'

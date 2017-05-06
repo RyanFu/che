@@ -17,6 +17,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons'
 import LocalImg from '../images'
 import px2dp from '../util'
+import set from '../config/config'
 import Button from './Button'
 
 export default class Bz extends Component {
@@ -68,55 +69,21 @@ export default class Bz extends Component {
     }
   }
   render(){
-    const {name, isBrand, logo, scores, sale, bao, piao, ontime, fengniao, startPay, deliverPay, evOnePay, journey, time, activities, onPress} = this.props
-    let scale = scores/5*55
     return (
-      <Button onPress={onPress}>
+      <Button onPress={()=>{}}>
         <View style={styles.bzWrap}>
           <View style={styles.border}>
-            <Image source={LocalImg.h0} style={styles.bzLogo}/>
+            <Image source={{uri:set.baseurl+this.props.thumb}}/>
             <View style={styles.bzContent}>
               <View style={styles.between}>
                 <View style={{flexDirection: "row", flex: 1}}>
-                  {isBrand?(<Text style={styles.brand}>{"品牌"}</Text>):null}
-                  <Text numberOfLines={1} style={styles.name}>{name}</Text>
+                  <Text numberOfLines={1} style={styles.name}>{}</Text>
+                  <Text style={{marginLeft:px2dp(20)}}>{this.props.desc}</Text>
                 </View>
-                <View style={{flexDirection: "row", justifyContent:"flex-end", width: 70}}>
-                  {bao?(<Text style={styles.label}>{"保"}</Text>):null}
-                  {piao?(<Text style={[styles.label, {marginLeft: 2}]}>{"票"}</Text>):null}
-                </View>
+
+
               </View>
-              <View style={[styles.between, {marginTop: 8}]}>
-                <View style={{flexDirection: "row", flex: 1}}>
-                  <View>
-                    <Image source={LocalImg.star2} style={{height: 10, width: 55}}/>
-                    <View style={{height: 10, position:"absolute", left:0, top:0, width: scale, overflow:"hidden"}}>
-                      <Image source={LocalImg.star1} style={{height: 10, width: 55}}/>
-                    </View>
-                  </View>
-                  <Text style={{fontSize: px2dp(11), color: "#ff6000"}}>{scores}</Text>
-                  <Text style={{fontSize: px2dp(11), color: "#666", marginLeft: 2}}>{`月售${sale}单`}</Text>
-                </View>
-                <View style={{flexDirection: "row", justifyContent:"flex-end"}}>
-                  {ontime?(<Text style={styles.label1}>{"快速"}</Text>):null}
-                  {fengniao?(<Text style={[styles.label2, {marginLeft: 2}]}>{"干净"}</Text>):null}
-                </View>
-              </View>
-              <View style={[styles.between, {marginTop: 8}]}>
-                <View style={{flexDirection: "row", flex: 1}}>
-                  <Text style={styles.infoText}>{startPay}</Text>
-                  <Text style={styles.line}>{'|'}</Text>
-                  <Text style={styles.infoText}>{deliverPay}</Text>
-                  <Text style={styles.line}>{'|'}</Text>
-                  <Text style={styles.infoText}>{evOnePay}</Text>
-                </View>
-                <View style={{flexDirection: "row", justifyContent:"flex-end"}}>
-                  <Text style={styles.infoText}>{journey}</Text>
-                  <Text style={styles.line}>{'|'}</Text>
-                  <Text style={{fontSize: px2dp(11), color: "#00abff", marginLeft: 2}}>{time}</Text>
-                </View>
-              </View>
-              {this.renderActivities()}
+
             </View>
           </View>
         </View>

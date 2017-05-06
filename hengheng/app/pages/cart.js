@@ -21,7 +21,8 @@ import {
     AsyncStorage,
     InteractionManager,
     RefreshControl,
-    Animated
+    Animated,
+    DeviceEventEmitter,
 } from 'react-native'
 import px2dp from '../util/index'
 import NavBar from '../component/NavBar'
@@ -67,8 +68,14 @@ export default class cart extends Component {
         }
     }
     componentDidMount() {
-
+        this.cartrefresh = DeviceEventEmitter.addListener('cartrefresh',(data)=>{
+            this._onRefresh();
+        });
         InteractionManager.runAfterInteractions(this._onRefresh());
+    }
+
+    componentWillUnmount() {
+        this.cartrefresh.remove();
     }
     _onRefresh() {
         if (!this.state.isRefreshing) {

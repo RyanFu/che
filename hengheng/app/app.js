@@ -7,8 +7,7 @@
 import React, { Component } from 'react'
 import { Navigator, View, StatusBar, Platform } from 'react-native'
 import Wrapper from './component/Wrapper'
-//import Events from './util/event'
-
+import theme from './config/theme'
 export default class Navigation extends Component{
     constructor(props){
       super(props)
@@ -27,7 +26,7 @@ export default class Navigation extends Component{
         ):(
           <View style={{flex: 1}}>
             <StatusBar
-             backgroundColor="#e83e41"
+             backgroundColor={theme.bkColor}
              barStyle="light-content"
            />
             <Navigator

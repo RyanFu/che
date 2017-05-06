@@ -141,6 +141,8 @@ repositories {
 }
 
 dependencies {
+    compile project(':react-native-wechat')
+    compile project(':react-native-yunpeng-alipay')
     compile project(':react-native-update')
     compile project(':react-native-photo-view')
     compile project(':react-native-image-picker')

@@ -3,7 +3,7 @@
  */
 'use strict';
 let set={
-    baseurl:"http://192.168.1.88/",
+    baseurl:"http://www.jzdzsw.com/",
     interface:{
         sendsns:'index.php?g=app&m=public&a=sendsns',
         checksns:'index.php?g=app&m=public&a=checksns',
@@ -19,6 +19,7 @@ let set={
         userdelcar:'index.php?g=app&m=public&a=userdelcar',
         getgoodslist:'index.php?g=app&m=public&a=getgoodslist',
         getgoodsinfo:'index.php?g=app&m=public&a=getgoodsinfo',
+        storelist:'index.php?g=app&m=public&a=storelist',
     },
     mall:{
         getordersubinfo:'index.php?g=app&m=mall&a=getordersubinfo',
@@ -26,6 +27,11 @@ let set={
         usercoupon:'index.php?g=app&m=mall&a=usercoupon',
         buildorder:'index.php?g=app&m=mall&a=buildorder',
         getorderlist:'index.php?g=app&m=mall&a=getorderlist',
+        getusercard:'index.php?g=app&m=mall&a=getusercard',
+        getusercouponlist:'index.php?g=app&m=mall&a=getusercouponlist',
+    },
+    user:{
+        getuseraccount:'index.php?g=app&m=user&a=getuseraccount',
     }
 
 }

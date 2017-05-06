@@ -3,6 +3,8 @@ package com.hengheng;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.theweflex.react.WeChatPackage;
+import com.yunpeng.alipay.AlipayPackage;
 import cn.reactnative.modules.update.UpdatePackage;
 import com.imagepicker.ImagePickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -34,6 +36,8 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
               new RNDeviceInfo(),
               new MainReactPackage(),
+            new WeChatPackage(),
+            new AlipayPackage(),
             new UpdatePackage(),
               new ImagePickerPackage(),
               new PhotoViewPackage(),
